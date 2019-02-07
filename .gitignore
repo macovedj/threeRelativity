@@ -1,0 +1,4 @@
+.DS_Store
+.cache/.index.html.swp
+dist/
+node_modules/
