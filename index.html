@@ -1,7 +1,7 @@
 <html>
   <head>
-    <title>Three.js Crash Course</title>
-
+    <title>Special Relativity Three</title>
+    <link href="styles.css" rel="stylesheet"/>
     <style>
       body { margin: 0; }
       canvas { width: 100%; height: 100%; };
@@ -10,67 +10,23 @@
   </head>
 
   <body>
+    <!-- <script src="./index.js"></script> -->
+    
     <script src="js/three.js"></script>
-    <script src="js/FlyControls.js"></script>
-
-    <script>
-      var scene = new THREE.Scene();
-      var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    <script src="js/threeImplementation.js" defer></script>
+    <div class="outer-container">
+      <div class="clock-container">
+        <input id="speedSlider" value="0" type="range" step="0.01" min="0" max=".99" />
+        <table>
+          <tr>
+            <td class="stationary-clock-label">Stationary Time: </td>
+            <td id="stationaryTime" class="stationary-clock-value"></td>
+          </tr>
+          <tr>
+            <td class="moving-clock-label">Moving Time: </td>
+            <td id="movingTime" class="moving-clock-value"></td>
+          </tr>
+      </div>
       
-      var renderer = new THREE.WebGLRenderer();
-      renderer.setClearColor( 0x333333);
-      renderer.setSize(window.innerWidth, window.innerHeight );
-      document.body.appendChild(renderer.domElement);
-
-      window.addEventListener( 'resize', function() {
-        var width = window.innerWidth;
-        var height = window.innerHeight;
-        renderer.setSize(width, height);
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-      });
-
-      controls = new THREE.FlyControls( camera, renderer.domElement);
-
-      // create the shape
-      var stationaryGeometry = new THREE.Geometry()
-      var movingGeometry = new THREE.Geometry()
-
-      stationaryGeometry.vertices.push(new THREE.Vector3( -10, 0, 0) );
-      stationaryGeometry.vertices.push(new THREE.Vector3( 0, 0, 0) );
-      stationaryGeometry.vertices.push(new THREE.Vector3( 10, 0, 0) ); 
-
-      movingGeometry.vertices.push(new THREE.Vector3( -10, -1, 0) );
-      movingGeometry.vertices.push(new THREE.Vector3( 0, -1, 0) );
-      movingGeometry.vertices.push(new THREE.Vector3( 10, -1, 0) ); 
-
-      // create a material, color, or image texture
-      var stationaryMaterial = new THREE.LineBasicMaterial( { color: 0x9f8ec2 } );
-      var movingMaterial = new THREE.LineBasicMaterial( { color: 0x5f9ea0 } );
-
-      var stationaryLine = new THREE.Line( stationaryGeometry, stationaryMaterial );
-      var movingLine = new THREE.Line( movingGeometry, movingMaterial );
-
-      camera.position.z = 3;
-
-      scene.add(stationaryLine);
-      scene.add(movingLine);
-      
-      console.log(scene)
-      // game logic
-
-      // draw Scene
-      var render = function() {
-        renderer.render(scene, camera);
-      };
-
-      // run game loop (update, render, repeate)
-      var GameLoop = function() {
-        requestAnimationFrame( GameLoop);
-
-        render();
-      };
-
-      GameLoop();
-    </script>
+    </div>
 </html>
