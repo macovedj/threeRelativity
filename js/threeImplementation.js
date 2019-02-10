@@ -45,7 +45,7 @@ var renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight );
     document.body.appendChild(renderer.domElement);
 
-		window.addEventListener( 'wheel', onMouseWheel, false);
+	window.addEventListener( 'wheel', onMouseWheel, false);
     window.addEventListener( 'resize', function() {
     var width = window.innerWidth;
     var height = window.innerHeight;
