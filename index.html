@@ -17,6 +17,8 @@
     <div class="outer-container">
       <div class="clock-container">
         <input id="speedSlider" value="0" type="range" step="0.01" min="0" max=".99" />
+        <div id="sliderLabel">Speed of traveller (fraction of speed of light): </div>
+        <div id="labelValue">0</div>
         <table>
           <tr>
             <td class="stationary-clock-label">Stationary Time: </td>
@@ -27,6 +29,7 @@
             <td id="movingTime" class="moving-clock-value"></td>
           </tr>
       </div>
-      
+      <button id="pauseButton">Pause</button>
+      <button id="resetButton">Reset</button>
     </div>
 </html>
