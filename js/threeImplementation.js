@@ -51,15 +51,12 @@ var renderer = new THREE.WebGLRenderer();
     var height = window.innerHeight;
     renderer.setSize(width, height);
     camera.aspect = width / height;
-		camera.updateProjectionMatrix();
-		
+	camera.updateProjectionMatrix();
 });
-
-// controls = new THREE.FlyControls( camera, renderer.domElement);
 
 // create the shape
 var stationaryGeometry = new THREE.Geometry();
-// var movingLightSecond = new THREE.Geometry();
+var movingLightSecond = new THREE.Geometry();
 
 stationaryGeometry.vertices.push(new THREE.Vector3( -10, .5, 0) );
 stationaryGeometry.vertices.push(new THREE.Vector3( 100, .5, 0) );
