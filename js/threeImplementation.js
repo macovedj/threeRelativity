@@ -8,54 +8,60 @@ let travellerSpeed = 0;
 let gamma = 1;
 let movingEndpoint = .5;
 let playing = true;
-let totalPaused = 0;
-let initialPause = true;
+let pauseTime = 0;
 
 let sliderNode = document.querySelector('#speedSlider');          
 let movingTimeNode = document.querySelector('#movingTime');          
 let stationaryTimeNode = document.querySelector('#stationaryTime');          
 let resetButtonNode = document.querySelector('#resetButton');          
-// let startButtonNode = document.querySelector('#startButton');          
+let startButtonNode = document.querySelector('#startButton');          
 let pauseButtonNode = document.querySelector('#pauseButton');          
 let labelValue = document.querySelector('#labelValue');
+let gammaLabel = document.querySelector('#gammaLabel');          
+let pauseInput = document.querySelector('#pauseTime');          
 
 function resetHandler() {
+	playing = true;
 	rTime = 0;
 	time = 0;
 	vessel.position.x = 0;
-	playing = false;
+	movingLine.position.x = 0;
+	photon.position.x = 0;
+	movingLightSecondLines.forEach((line, i) =>  line.position.x = i * .05 / gamma);
 }
 
-// function startHandler() {
-// 	console.log('start happened')
-// 	let lastTime = performance.now();
-// 	let rTime = 0;
-// 	let time = 0;
-// 	let travellerSpeed = 0;
-// 	playing = true;
-// 	console.log(playing)
-// }
+function startHandler() {
+	lastTime = performance.now();
+	playing = true;
+	console.log('were startin now!!!!')
+}
 
-function pauseHandler() {
-	console.log('pause happened')
+function pauseButtonHandler() {
 	playing = false;
+	time = pauseTime;
+}
+
+function pauseInputHandler() {
+	pauseTime = pauseInput.value;	
 }
 
 function computeGamma() { return 1/Math.sqrt(1 - Math.pow(travellerSpeed, 2)); }
 
-const renderTimers = (time, rTime) => {
+const renderTimers= (time, rTime) => {
 	movingTimeNode.innerText = moment.duration(rTime).format('mm:ss:SS', { trim: false });
 	stationaryTimeNode.innerText = moment.duration(time).format('mm:ss:SS', { trim: false });
 }
 
-// startButtonNode.addEventListener("click", startHandler);
-pauseButtonNode.addEventListener("click", pauseHandler);
+startButtonNode.addEventListener("click", startHandler);
+pauseButtonNode.addEventListener("click", pauseButtonHandler);
 resetButtonNode.addEventListener("click", resetHandler);
+pauseInput.addEventListener("input", pauseInputHandler);
 
 sliderNode.addEventListener("input", ev => {
 	travellerSpeed = ev.target.value;
 	labelValue.innerHTML = sliderNode.value;
 	gamma = computeGamma();
+	gammaLabel.innerHTML = gamma;
 	vessel.geometry.vertices[1].x = .5 / gamma;
 	vessel.scale.set(1 / gamma, 1, 1);
 	movingLightSecondLines.forEach(line => line.scale.set(1 / gamma, 1, 1)) 
@@ -87,11 +93,10 @@ var renderer = new THREE.WebGLRenderer();
 	camera.updateProjectionMatrix();
 });
 
-// create the shape ffca57 ffe623
 var stationaryGeometry = new THREE.Geometry();
 var movingGeometry = new THREE.Geometry();
 var vesselGeometry = new THREE.Geometry();
-var photonGeometry = new THREE.PlaneGeometry(.01,.01,.01);
+var photonGeometry = new THREE.PlaneGeometry(.05,.05,.05);
 
 stationaryGeometry.vertices.push(new THREE.Vector3( -10, .5, 0) );
 stationaryGeometry.vertices.push(new THREE.Vector3( 100, .5, 0) );
@@ -143,14 +148,14 @@ scene.add(photon);
 
 // update logic
 var update = function() {
+	if (time > pauseTime * 1000) {
+		playing = false
+	}
+	
 	if (playing) {
-		console.log(playing, 'from inside update')
 		const now = performance.now();
 		const sinceLast = now - lastTime;
-		console.log(sinceLast,'********')
-		console.log("TIME", time)
 		time += sinceLast;
-		console.log(time)
 		rTime += sinceLast / gamma;
 		renderTimers( time, rTime );
 		lastTime = now;
