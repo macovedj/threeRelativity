@@ -9,6 +9,8 @@ let gamma = 1;
 let movingEndpoint = .5;
 let playing = true;
 let pauseTime = 0;
+let movingLightSecondLines = [];
+let movingSprites = [];
 
 let sliderNode = document.querySelector('#speedSlider');          
 let movingTimeNode = document.querySelector('#movingTime');          
@@ -24,7 +26,7 @@ function resetHandler() {
 	playing = true;
 	rTime = 0;
 	time = 0;
-	vessel.position.x = 0;
+	// vessel.position.x = 0;
 	movingLine.position.x = 0;
 	photon.position.x = 0;
 	movingLightSecondLines.forEach((line, i) =>  line.position.x = i * .05 / gamma);
@@ -45,12 +47,64 @@ function pauseInputHandler() {
 	pauseTime = pauseInput.value;	
 }
 
+function createStationaryLightSecond(i) {
+	var lightSecondMark = new THREE.Geometry();
+	lightSecondMark.vertices.push(new THREE.Vector3( i * .5, .4, 0));
+	lightSecondMark.vertices.push(new THREE.Vector3( i * .5, .6, 0));
+	var lightSecondLine = new THREE.LineSegments( lightSecondMark, linesMaterial );
+	let canvas = document.createElement('canvas');
+	canvas.width = 256;
+	canvas.height = 256;
+	var ctx = canvas.getContext("2d");
+	ctx.font = "22pt Arial";
+	ctx.fillStyle = "#9f8ec2";
+	ctx.textAlign = "center";
+	ctx.fillText(i, 128, 44);
+	var tex = new THREE.Texture(canvas);
+	tex.needsUpdate = true;
+	var spriteMat = new THREE.SpriteMaterial({
+		map: tex
+	});
+	var sprite = new THREE.Sprite(spriteMat);
+	sprite.position.x = i * .5;
+	sprite.position.y = -.1;
+	scene.add(lightSecondLine);
+	scene.add(sprite);
+}
+
+function createMovingLightSecond(i) {
+	var movingLightSecondMark = new THREE.Geometry();
+	movingLightSecondMark.vertices.push(new THREE.Vector3( i * .5, .9, 0));
+	movingLightSecondMark.vertices.push(new THREE.Vector3( i * .5, 1.1, 0));
+	var movingLightSecondLine = new THREE.LineSegments( movingLightSecondMark, movingLinesMaterial );
+	movingLightSecondLines.push(movingLightSecondLine);
+	let canvas = document.createElement('canvas');
+	canvas.width = 256;
+	canvas.height = 256;
+	var ctx = canvas.getContext("2d");
+	ctx.font = "22pt Arial";
+	ctx.fillStyle = "#5f9ea0";
+	ctx.textAlign = "center";
+	ctx.fillText(i, 128, 44);
+	var tex = new THREE.Texture(canvas);
+	tex.needsUpdate = true;
+	var spriteMat = new THREE.SpriteMaterial({
+		map: tex
+	});
+	var sprite = new THREE.Sprite(spriteMat);
+	sprite.position.x = i * .5;
+	sprite.position.y = .4;
+	movingSprites.push(sprite);
+}
+
 function computeGamma() { return 1/Math.sqrt(1 - Math.pow(travellerSpeed, 2)); }
 
 const renderTimers= (time, rTime) => {
 	movingTimeNode.innerText = moment.duration(rTime).format('mm:ss:SS', { trim: false });
 	stationaryTimeNode.innerText = moment.duration(time).format('mm:ss:SS', { trim: false });
 }
+
+
 
 startButtonNode.addEventListener("click", startHandler);
 pauseButtonNode.addEventListener("click", pauseButtonHandler);
@@ -62,9 +116,10 @@ sliderNode.addEventListener("input", ev => {
 	labelValue.innerHTML = sliderNode.value;
 	gamma = computeGamma();
 	gammaLabel.innerHTML = gamma;
-	vessel.geometry.vertices[1].x = .5 / gamma;
-	vessel.scale.set(1 / gamma, 1, 1);
+	// vessel.geometry.vertices[1].x = .5 / gamma;
+	// vessel.scale.set(1 / gamma, 1, 1);
 	movingLightSecondLines.forEach(line => line.scale.set(1 / gamma, 1, 1)) 
+	movingSprites.forEach((sprite,i) => sprite.position.x = movingSprites[0].position.x + i * .5 / gamma/*console.log(movingLightSecondLines[i])*/); 
 })
 
 function onMouseWheel(event) {
@@ -95,7 +150,7 @@ var renderer = new THREE.WebGLRenderer();
 
 var stationaryGeometry = new THREE.Geometry();
 var movingGeometry = new THREE.Geometry();
-var vesselGeometry = new THREE.Geometry();
+// var vesselGeometry = new THREE.Geometry();
 var photonGeometry = new THREE.PlaneGeometry(.05,.05,.05);
 
 stationaryGeometry.vertices.push(new THREE.Vector3( -10, .5, 0) );
@@ -106,24 +161,16 @@ movingGeometry.vertices.push(new THREE.Vector3( 100, 1, 0) );
 const linesMaterial = new THREE.LineBasicMaterial( { color: 0x9f8ec2 } );
 const movingLinesMaterial = new THREE.LineBasicMaterial( { color: 0x5f9ea0 } );
 
-movingLightSecondLines = [];
+var labelMaterial = new THREE.MeshBasicMaterial({
+	color: 0xffffff
+});
 for ( var i = 0; i <= 200; i++ ) {
-	var lightSecondMark = new THREE.Geometry();
-	var movingLightSecondMark = new THREE.Geometry();
-
-	lightSecondMark.vertices.push(new THREE.Vector3( i * .5, .4, 0));
-	lightSecondMark.vertices.push(new THREE.Vector3( i * .5, .6, 0));
-	movingLightSecondMark.vertices.push(new THREE.Vector3( i * .5, .9, 0));
-	movingLightSecondMark.vertices.push(new THREE.Vector3( i * .5, 1.1, 0));
-	var lightSecondLine = new THREE.LineSegments( lightSecondMark, linesMaterial );
-	var movingLightSecondLine = new THREE.LineSegments( movingLightSecondMark, movingLinesMaterial );
-	movingLightSecondLines.push(movingLightSecondLine);
-	scene.add( lightSecondLine );
-	scene.add( movingLightSecondLine );
-	// scene.add( label );
-
+	createStationaryLightSecond(i);
+	createMovingLightSecond(i);
+	// scene.add(sprite);
 }
 movingLightSecondLines.forEach(mark => scene.add(mark));
+movingSprites.forEach(sprite => scene.add(sprite));
 
 // create a material, color, or image texture
 var stationaryMaterial = new THREE.LineBasicMaterial( { color: 0x9f8ec2 } );
@@ -133,13 +180,12 @@ const photonMaterial = new THREE.MeshBasicMaterial( { color: 0xffe623, side: THR
 var stationaryLine = new THREE.Line( stationaryGeometry, stationaryMaterial );
 var movingLine = new THREE.Line( movingGeometry, movingMaterial );
 var photon = new THREE.Mesh( photonGeometry, photonMaterial );
-vesselGeometry.verticesNeedUpdate = true
-vesselGeometry.vertices.push(new THREE.Vector3( 0, .75, 0) );
-vesselGeometry.vertices.push(new THREE.Vector3( movingEndpoint, .75, 0) );
-var vessel = new THREE.LineSegments( vesselGeometry, movingMaterial );
-scene.add(vessel);
+// vesselGeometry.verticesNeedUpdate = true
+// vesselGeometry.vertices.push(new THREE.Vector3( 0, .75, 0) );
+// vesselGeometry.vertices.push(new THREE.Vector3( movingEndpoint, .75, 0) );
+// var vessel = new THREE.LineSegments( vesselGeometry, movingMaterial );
+// scene.add(vessel);
 photon.position.y = 1.5
-
 camera.position.z = 3;
 
 scene.add(stationaryLine);
@@ -159,8 +205,9 @@ var update = function() {
 		rTime += sinceLast / gamma;
 		renderTimers( time, rTime );
 		lastTime = now;
-		vessel.position.x += travellerSpeed * sinceLast * .0005
+		// vessel.position.x += travellerSpeed * sinceLast * .0005
 		movingLightSecondLines.forEach(line =>  line.position.x += travellerSpeed * sinceLast * .0005);
+		movingSprites.forEach(sprite =>  sprite.position.x += travellerSpeed * sinceLast * .0005);
 		photon.position.x += .5 * sinceLast / 1000
 	}
 }	
