@@ -19,7 +19,11 @@ table {
   color: #9f8ec2;
 }
 
-.moving-clock-label {
+.moving-clock-home-label {
+  font-size: 5vmin;
+  color: cadetblue;
+}
+.moving-clock-traveller-label {
   font-size: 5vmin;
   color: cadetblue;
 }

@@ -2,7 +2,8 @@ let moment = require('moment');
 let momentDurationFormatSetup = require("moment-duration-format");
 
 let lastTime = performance.now();
-let rTime = 0;
+let rHomeTime = 0;
+let rTravellerTime = 0;
 let time = 0;
 let travellerSpeed = 0;
 let gamma = 1;
@@ -11,8 +12,10 @@ let playing = true;
 let pauseTime = 0;
 
 let sliderNode = document.querySelector('#speedSlider');          
-let movingTimeNode = document.querySelector('#movingTime');          
+let movingHomeTimeNode = document.querySelector('#movingHomeTime');          
+let movingTravellerTimeNode = document.querySelector('#movingTravellerTime');          
 let stationaryTimeNode = document.querySelector('#stationaryTime');          
+
 let resetButtonNode = document.querySelector('#resetButton');          
 let startButtonNode = document.querySelector('#startButton');          
 let pauseButtonNode = document.querySelector('#pauseButton');          
@@ -22,7 +25,7 @@ let pauseInput = document.querySelector('#pauseTime');
 
 function resetHandler() {
 	playing = true;
-	rTime = 0;
+	rHomeTime = 0;
 	time = 0;
 	vessel.position.x = 0;
 	movingLine.position.x = 0;
@@ -47,8 +50,9 @@ function pauseInputHandler() {
 
 function computeGamma() { return 1/Math.sqrt(1 - Math.pow(travellerSpeed, 2)); }
 
-const renderTimers= (time, rTime) => {
-	movingTimeNode.innerText = moment.duration(rTime).format('mm:ss:SS', { trim: false });
+const renderTimers= (time, rHomeTime) => {
+	movingTravellerTimeNode.innerText = moment.duration(rTravellerTime).format('mm:ss:SS', { trim: false });
+	movingHomeTimeNode.innerText = moment.duration(rHomeTime).format('mm:ss:SS', { trim: false });
 	stationaryTimeNode.innerText = moment.duration(time).format('mm:ss:SS', { trim: false });
 }
 
@@ -110,7 +114,6 @@ movingLightSecondLines = [];
 for ( var i = 0; i <= 200; i++ ) {
 	var lightSecondMark = new THREE.Geometry();
 	var movingLightSecondMark = new THREE.Geometry();
-
 	lightSecondMark.vertices.push(new THREE.Vector3( i * .5, .4, 0));
 	lightSecondMark.vertices.push(new THREE.Vector3( i * .5, .6, 0));
 	movingLightSecondMark.vertices.push(new THREE.Vector3( i * .5, .9, 0));
@@ -156,8 +159,9 @@ var update = function() {
 		const now = performance.now();
 		const sinceLast = now - lastTime;
 		time += sinceLast;
-		rTime += sinceLast / gamma;
-		renderTimers( time, rTime );
+		rHomeTime = time / gamma;
+		rTravellerTime = gamma * (time - travellerSpeed * movingLightSecondLines[0].position.x)
+		renderTimers( time, rHomeTime );
 		lastTime = now;
 		vessel.position.x += travellerSpeed * sinceLast * .0005
 		movingLightSecondLines.forEach(line =>  line.position.x += travellerSpeed * sinceLast * .0005);
