@@ -52,6 +52,25 @@ const renderTimers= (time, rTime) => {
 	stationaryTimeNode.innerText = moment.duration(time).format('mm:ss:SS', { trim: false });
 }
 
+var loader = new THREE.FontLoader();
+loader.load('js/helvetiker_regular.typeface.json', function (font) {
+	var funGeometry = new THREE.TextGeometry('Mon', {
+// 		font: font,
+// 		size: 1,
+// 		height: 0.5,
+// 		curveSegments: 12,
+// 		bevelEnabled: false,
+// 		bevelThickness: 0.1,
+// 		bevelSize: 0.1,
+// 		bevelSegments: 0.1
+	});
+});
+// var txt_mat = new THREE.MeshPhongMaterial({ color: 0xffffff });
+// var txt_mesh = new THREE.Mesh(funGeometry, txt_mat);
+// txt_mesh.position.x = 0;
+// txt_mesh.position.y = 0;
+// scene.add(textGeometry, txt_mat)
+
 startButtonNode.addEventListener("click", startHandler);
 pauseButtonNode.addEventListener("click", pauseButtonHandler);
 resetButtonNode.addEventListener("click", resetHandler);
@@ -107,9 +126,13 @@ const linesMaterial = new THREE.LineBasicMaterial( { color: 0x9f8ec2 } );
 const movingLinesMaterial = new THREE.LineBasicMaterial( { color: 0x5f9ea0 } );
 
 movingLightSecondLines = [];
+var labelMaterial = new THREE.MeshBasicMaterial({
+	color: 0xffffff
+});
 for ( var i = 0; i <= 200; i++ ) {
 	var lightSecondMark = new THREE.Geometry();
 	var movingLightSecondMark = new THREE.Geometry();
+	// var lightSecondLabel = new THREE.CylinderGeometry(0, 10, 30, 4, 1);
 
 	lightSecondMark.vertices.push(new THREE.Vector3( i * .5, .4, 0));
 	lightSecondMark.vertices.push(new THREE.Vector3( i * .5, .6, 0));
@@ -177,4 +200,4 @@ var GameLoop = function() {
   requestAnimationFrame( GameLoop );
 };
 
-GameLoop();
+GameLoop()
