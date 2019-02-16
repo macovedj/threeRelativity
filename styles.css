@@ -24,12 +24,23 @@ table {
   color: cadetblue;
 }
 
+.moving-photon-clock-label {
+  font-size: 5vmin;
+  color: cadetblue;
+}
+
 .stationary-clock-value {
   font-size: 5vmin;
   text-align: right;
 }
 
 .moving-clock-value {
+  font-size: 5vmin;
+  text-align: right;
+  color: cadetblue;
+}
+
+.moving-photon-clock-value {
   font-size: 5vmin;
   text-align: right;
   color: cadetblue;
