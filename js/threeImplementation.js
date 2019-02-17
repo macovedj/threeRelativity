@@ -26,12 +26,17 @@ let gammaLabel = document.querySelector('#gammaLabel');
 let pauseInput = document.querySelector('#pauseTime');          
 
 function resetHandler() {
+	sliderNode.value = 0;
+	gamma = 1;
 	rHomeTime = 0;
 	rPhotonTime = 0;
 	time = 0;
+	speedOfTraveller = 0;
 	movingTimeNode.innerHTML = "00:00:00";
 	movingPhotonTimeNode.innerHTML = "00:00:00";
 	stationaryTimeNode.innerHTML = "00:00:00";
+	labelValue.innerHTML = "0";
+	gammaLabel.innerHTML = "1";
 	// vessel.position.x = 0;
 	movingLine.position.x = 0;
 	photon.position.x = 0;
@@ -44,6 +49,7 @@ function resetHandler() {
 	}
 	movingLightSecondLines.forEach(line => scene.add(line))
 	movingSprites.forEach(sprite => scene.add(sprite))
+	sliderNode.disabled = false;
 	playing = false;
 }
 
@@ -53,6 +59,7 @@ function startHandler() {
 		time = resumeTime;
 	}
 	playing = true;
+	sliderNode.disabled = true;
 	console.log('were startin now!!!!')
 }
 
@@ -137,7 +144,8 @@ sliderNode.addEventListener("input", ev => {
 	// vessel.geometry.vertices[1].x = .5 / gamma;
 	// vessel.scale.set(1 / gamma, 1, 1);
 	movingLightSecondLines.forEach(line => line.scale.set(1 / gamma, 1, 1)) 
-	movingSprites.forEach((sprite,i) => sprite.position.x = movingSprites[0].position.x + i * 1.5 / gamma/*console.log(movingLightSecondLines[i])*/); 
+	movingSprites.forEach((sprite,i) => sprite.position.x = movingSprites[0].position.x + i * 1.5 / gamma);
+	// movingLightSecondLines.forEach((line, i) => line.position.x = movingSprites[i].position.x);
 })
 
 function onMouseWheel(event) {
@@ -185,7 +193,6 @@ var labelMaterial = new THREE.MeshBasicMaterial({
 for ( var i = 0; i <= 200; i++ ) {
 	createStationaryLightSecond(i);
 	createMovingLightSecond(i, gamma);
-	// scene.add(sprite);
 }
 movingLightSecondLines.forEach(mark => scene.add(mark));
 movingSprites.forEach(sprite => scene.add(sprite));
