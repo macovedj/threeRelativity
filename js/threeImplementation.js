@@ -51,11 +51,11 @@ function pauseInputHandler() {
 	pauseTime = pauseInput.value;	
 }
 
-function createStationaryLightSecond(i) {
+const createStationaryLightSecond = i => {
 	var lightSecondMark = new THREE.Geometry();
-	lightSecondMark.vertices.push(new THREE.Vector3( i * .5, .9, 0));
-	lightSecondMark.vertices.push(new THREE.Vector3( i * .5, 1.1, 0));
-	var lightSecondLine = new THREE.LineSegments( lightSecondMark, linesMaterial );
+	lightSecondMark.vertices.push(new THREE.Vector3(i * 1.5, .9, 0));
+	lightSecondMark.vertices.push(new THREE.Vector3(i * 1.5, 1.1, 0));
+	var lightSecondLine = new THREE.LineSegments(lightSecondMark, linesMaterial);
 	let canvas = document.createElement('canvas');
 	canvas.width = 256;
 	canvas.height = 256;
@@ -70,16 +70,40 @@ function createStationaryLightSecond(i) {
 		map: tex
 	});
 	var sprite = new THREE.Sprite(spriteMat);
-	sprite.position.x = i * .5;
+	sprite.position.x = i * 1.5;
 	sprite.position.y = 0.4;
 	scene.add(lightSecondLine);
-	scene.add(sprite);
+	scene.add(sprite);	
 }
+// function createStationaryLightSecond(i) {
+// 	var lightSecondMark = new THREE.Geometry();
+// 	lightSecondMark.ertices.push(new THREE.Vector3( i * 1.5, .9, 0));
+// 	lightSecondMark.vertices.push(new THREE.Vector3( i * 1.5, 1.1, 0));
+// 	var lightSecondLine = new THREE.LineSegments( lightSecondMark, linesMaterial );
+// 	let canvas = document.createElement('canvas');
+// 	canvas.width = 256;
+// 	canvas.height = 256;
+// 	var ctx = canvas.getContext("2d");
+// 	ctx.font = "22pt Arial";
+// 	ctx.fillStyle = "#9f8ec2";
+// 	ctx.textAlign = "center";
+// 	ctx.fillText(i, 128, 44);
+// 	var tex = new THREE.Texture(canvas);
+// 	tex.needsUpdate = true;
+// 	var spriteMat = new THREE.SpriteMaterial({
+// 		map: tex
+// 	});
+// 	var sprite = new THREE.Sprite(spriteMat);
+// 	sprite.position.x = i * 1.5;
+// 	sprite.position.y = 0.4;
+// 	scene.add(lightSecondLine);
+// 	scene.add(sprite);
+// }
 
 function createMovingLightSecond(i) {
 	var movingLightSecondMark = new THREE.Geometry();
-	movingLightSecondMark.vertices.push(new THREE.Vector3( i * .5, 1.4, 0));
-	movingLightSecondMark.vertices.push(new THREE.Vector3( i * .5, 1.6, 0));
+	movingLightSecondMark.vertices.push(new THREE.Vector3( i * 1.5, 1.4, 0));
+	movingLightSecondMark.vertices.push(new THREE.Vector3( i * 1.5, 1.6, 0));
 	var movingLightSecondLine = new THREE.LineSegments( movingLightSecondMark, movingLinesMaterial );
 	movingLightSecondLines.push(movingLightSecondLine);
 	let canvas = document.createElement('canvas');
@@ -96,7 +120,7 @@ function createMovingLightSecond(i) {
 		map: tex
 	});
 	var sprite = new THREE.Sprite(spriteMat);
-	sprite.position.x = i * .5;
+	sprite.position.x = i * 1.5;
 	sprite.position.y = .9;
 	movingSprites.push(sprite);
 }
@@ -122,7 +146,7 @@ sliderNode.addEventListener("input", ev => {
 	// vessel.geometry.vertices[1].x = .5 / gamma;
 	// vessel.scale.set(1 / gamma, 1, 1);
 	movingLightSecondLines.forEach(line => line.scale.set(1 / gamma, 1, 1)) 
-	movingSprites.forEach((sprite,i) => sprite.position.x = movingSprites[0].position.x + i * .5 / gamma/*console.log(movingLightSecondLines[i])*/); 
+	movingSprites.forEach((sprite,i) => sprite.position.x = movingSprites[0].position.x + i * 1.5 / gamma/*console.log(movingLightSecondLines[i])*/); 
 })
 
 function onMouseWheel(event) {
@@ -210,9 +234,9 @@ var update = function() {
 		renderTimers( time, rHomeTime, rPhotonTime );
 		lastTime = now;
 		// vessel.position.x += travellerSpeed * sinceLast * .0005
-		movingLightSecondLines.forEach(line =>  line.position.x += travellerSpeed * sinceLast * .0005);
-		movingSprites.forEach(sprite =>  sprite.position.x += travellerSpeed * sinceLast * .0005);
-		photon.position.x += .5 * sinceLast / 1000
+		movingLightSecondLines.forEach(line =>  line.position.x += travellerSpeed * sinceLast * .0015);
+		movingSprites.forEach(sprite =>  sprite.position.x += travellerSpeed * sinceLast * .0015);
+		photon.position.x += 1.5 * sinceLast / 1000
 	}
 }	
 
