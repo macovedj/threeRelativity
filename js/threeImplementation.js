@@ -26,10 +26,12 @@ let gammaLabel = document.querySelector('#gammaLabel');
 let pauseInput = document.querySelector('#pauseTime');          
 
 function resetHandler() {
-	playing = false;
 	rHomeTime = 0;
 	rPhotonTime = 0;
 	time = 0;
+	movingTimeNode.innerHTML = "00:00:00";
+	movingPhotonTimeNode.innerHTML = "00:00:00";
+	stationaryTimeNode.innerHTML = "00:00:00";
 	// vessel.position.x = 0;
 	movingLine.position.x = 0;
 	photon.position.x = 0;
@@ -42,8 +44,7 @@ function resetHandler() {
 	}
 	movingLightSecondLines.forEach(line => scene.add(line))
 	movingSprites.forEach(sprite => scene.add(sprite))
-	console.log(movingSprites)
-	console.log(movingLightSecondLines)
+	playing = false;
 }
 
 function startHandler() {
