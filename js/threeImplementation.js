@@ -12,50 +12,64 @@ let playing = false;
 let pauseTime = 5;
 let movingLightSecondLines = [];
 let movingSprites = [];
+let resumeTime;
 
 let sliderNode = document.querySelector('#speedSlider');          
 let movingTimeNode = document.querySelector('#movingTime');          
 let movingPhotonTimeNode = document.querySelector('#movingPhotonTime');          
 let stationaryTimeNode = document.querySelector('#stationaryTime');          
-// let resetButtonNode = document.querySelector('#resetButton');          
+let resetButtonNode = document.querySelector('#resetButton');          
 let startButtonNode = document.querySelector('#startButton');          
 let pauseButtonNode = document.querySelector('#pauseButton');          
 let labelValue = document.querySelector('#labelValue');
 let gammaLabel = document.querySelector('#gammaLabel');          
 let pauseInput = document.querySelector('#pauseTime');          
 
-// function resetHandler() {
-// 	playing = true;
-// 	rHomeTime = 0;
-// 	rPhotonTime = 0;
-// 	time = 0;
-// 	// vessel.position.x = 0;
-// 	movingLine.position.x = 0;
-// 	photon.position.x = 0;
-// 	movingLightSecondLines.forEach((line, i) =>  line.position.x = i * .5 / gamma);
-// 	movingSprites.forEach((sprite, i) =>  sprite.position.x = i * .5 / gamma);
-// }
+function resetHandler() {
+	playing = false;
+	rHomeTime = 0;
+	rPhotonTime = 0;
+	time = 0;
+	// vessel.position.x = 0;
+	movingLine.position.x = 0;
+	photon.position.x = 0;
+	movingSprites.forEach(sprite => scene.remove(sprite));
+	movingLightSecondLines.forEach(line => scene.remove(line));
+	movingLightSecondLines = [];
+	movingSprites = [];
+	for (var i = 0; i <= 200; i++) {
+		createMovingLightSecond(i, gamma);
+	}
+	movingLightSecondLines.forEach(line => scene.add(line))
+	movingSprites.forEach(sprite => scene.add(sprite))
+	console.log(movingSprites)
+	console.log(movingLightSecondLines)
+}
 
 function startHandler() {
 	lastTime = performance.now();
+	if (resumeTime) {
+		time = resumeTime;
+	}
 	playing = true;
 	console.log('were startin now!!!!')
 }
 
 function pauseButtonHandler() {
 	playing = false;
+	resumeTime = time;
 	time = pauseTime;
 }
 
 function pauseInputHandler() {
-	pauseTime = pauseInput.value;	
+	pauseTime = pauseInput.value;
 }
 
-const createStationaryLightSecond = i => {
+function createStationaryLightSecond(i) {
 	var lightSecondMark = new THREE.Geometry();
-	lightSecondMark.vertices.push(new THREE.Vector3(i * 1.5, .9, 0));
-	lightSecondMark.vertices.push(new THREE.Vector3(i * 1.5, 1.1, 0));
-	var lightSecondLine = new THREE.LineSegments(lightSecondMark, linesMaterial);
+	lightSecondMark.vertices.push(new THREE.Vector3( i * 1.5, .9, 0));
+	lightSecondMark.vertices.push(new THREE.Vector3( i * 1.5, 1.1, 0));
+	var lightSecondLine = new THREE.LineSegments( lightSecondMark, linesMaterial );
 	let canvas = document.createElement('canvas');
 	canvas.width = 256;
 	canvas.height = 256;
@@ -73,37 +87,13 @@ const createStationaryLightSecond = i => {
 	sprite.position.x = i * 1.5;
 	sprite.position.y = 0.4;
 	scene.add(lightSecondLine);
-	scene.add(sprite);	
+	scene.add(sprite);
 }
-// function createStationaryLightSecond(i) {
-// 	var lightSecondMark = new THREE.Geometry();
-// 	lightSecondMark.ertices.push(new THREE.Vector3( i * 1.5, .9, 0));
-// 	lightSecondMark.vertices.push(new THREE.Vector3( i * 1.5, 1.1, 0));
-// 	var lightSecondLine = new THREE.LineSegments( lightSecondMark, linesMaterial );
-// 	let canvas = document.createElement('canvas');
-// 	canvas.width = 256;
-// 	canvas.height = 256;
-// 	var ctx = canvas.getContext("2d");
-// 	ctx.font = "22pt Arial";
-// 	ctx.fillStyle = "#9f8ec2";
-// 	ctx.textAlign = "center";
-// 	ctx.fillText(i, 128, 44);
-// 	var tex = new THREE.Texture(canvas);
-// 	tex.needsUpdate = true;
-// 	var spriteMat = new THREE.SpriteMaterial({
-// 		map: tex
-// 	});
-// 	var sprite = new THREE.Sprite(spriteMat);
-// 	sprite.position.x = i * 1.5;
-// 	sprite.position.y = 0.4;
-// 	scene.add(lightSecondLine);
-// 	scene.add(sprite);
-// }
 
-function createMovingLightSecond(i) {
+function createMovingLightSecond(i, gamma) {
 	var movingLightSecondMark = new THREE.Geometry();
-	movingLightSecondMark.vertices.push(new THREE.Vector3( i * 1.5, 1.4, 0));
-	movingLightSecondMark.vertices.push(new THREE.Vector3( i * 1.5, 1.6, 0));
+	movingLightSecondMark.vertices.push(new THREE.Vector3( i * 1.5 / gamma, 1.4, 0));
+	movingLightSecondMark.vertices.push(new THREE.Vector3( i * 1.5 / gamma, 1.6, 0));
 	var movingLightSecondLine = new THREE.LineSegments( movingLightSecondMark, movingLinesMaterial );
 	movingLightSecondLines.push(movingLightSecondLine);
 	let canvas = document.createElement('canvas');
@@ -120,12 +110,12 @@ function createMovingLightSecond(i) {
 		map: tex
 	});
 	var sprite = new THREE.Sprite(spriteMat);
-	sprite.position.x = i * 1.5;
+	sprite.position.x = i * 1.5 / gamma;
 	sprite.position.y = .9;
 	movingSprites.push(sprite);
 }
 
-function computeGamma() { return 1/Math.sqrt(1 - Math.pow(travellerSpeed, 2)); }
+function computeGamma() { return 1/ Math.sqrt(1 - Math.pow(travellerSpeed, 2)); }
 
 const renderTimers= (time, rHomeTime, rPhotonTime) => {
 	movingTimeNode.innerText = moment.duration(rHomeTime).format('mm:ss:SS', { trim: false });
@@ -135,7 +125,7 @@ const renderTimers= (time, rHomeTime, rPhotonTime) => {
 
 startButtonNode.addEventListener("click", startHandler);
 pauseButtonNode.addEventListener("click", pauseButtonHandler);
-// resetButtonNode.addEventListener("click", resetHandler);
+resetButtonNode.addEventListener("click", resetHandler);
 pauseInput.addEventListener("input", pauseInputHandler);
 
 sliderNode.addEventListener("input", ev => {
@@ -193,7 +183,7 @@ var labelMaterial = new THREE.MeshBasicMaterial({
 });
 for ( var i = 0; i <= 200; i++ ) {
 	createStationaryLightSecond(i);
-	createMovingLightSecond(i);
+	createMovingLightSecond(i, gamma);
 	// scene.add(sprite);
 }
 movingLightSecondLines.forEach(mark => scene.add(mark));
