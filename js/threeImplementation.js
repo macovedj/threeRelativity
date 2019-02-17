@@ -9,7 +9,7 @@ let travellerSpeed = 0;
 let gamma = 1;
 let movingEndpoint = .5;
 let playing = false;
-let pauseTime = 0;
+let pauseTime = 5;
 let movingLightSecondLines = [];
 let movingSprites = [];
 
