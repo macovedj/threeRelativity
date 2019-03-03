@@ -7,7 +7,7 @@ let rPhotonTime = 0;
 let time = 0;
 let travellerSpeed = 0;
 let gamma = 1;
-let movingEndpoint = .5;
+// let movingEndpoint = .5;
 let playing = false;
 let pauseTime = 5;
 let movingLightSecondLines = [];
@@ -15,7 +15,6 @@ let movingSprites = [];
 let resumeTime;
 
 let sliderNode = document.querySelector('#speedSlider');          
-let movingTimeNode = document.querySelector('#movingTime');          
 let movingPhotonTimeNode = document.querySelector('#movingPhotonTime');          
 let stationaryTimeNode = document.querySelector('#stationaryTime');          
 let resetButtonNode = document.querySelector('#resetButton');          
@@ -32,7 +31,6 @@ function resetHandler() {
 	rPhotonTime = 0;
 	time = 0;
 	speedOfTraveller = 0;
-	movingTimeNode.innerHTML = "00:00:00";
 	movingPhotonTimeNode.innerHTML = "00:00:00";
 	stationaryTimeNode.innerHTML = "00:00:00";
 	labelValue.innerHTML = "0";
@@ -60,7 +58,6 @@ function startHandler() {
 	}
 	playing = true;
 	sliderNode.disabled = true;
-	console.log('were startin now!!!!')
 }
 
 function pauseButtonHandler() {
@@ -126,7 +123,6 @@ function createMovingLightSecond(i, gamma) {
 function computeGamma() { return 1/ Math.sqrt(1 - Math.pow(travellerSpeed, 2)); }
 
 const renderTimers= (time, rHomeTime, rPhotonTime) => {
-	movingTimeNode.innerText = moment.duration(rHomeTime).format('mm:ss:SS', { trim: false });
 	movingPhotonTimeNode.innerText = moment.duration(rPhotonTime).format('mm:ss:SS', { trim: false });
 	stationaryTimeNode.innerText = moment.duration(time).format('mm:ss:SS', { trim: false });
 }
