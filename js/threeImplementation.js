@@ -183,9 +183,6 @@ movingGeometry.vertices.push(new THREE.Vector3( 100, 1.5, 0) );
 const linesMaterial = new THREE.LineBasicMaterial( { color: 0x9f8ec2 } );
 const movingLinesMaterial = new THREE.LineBasicMaterial( { color: 0x5f9ea0 } );
 
-var labelMaterial = new THREE.MeshBasicMaterial({
-	color: 0xffffff
-});
 for ( var i = 0; i <= 200; i++ ) {
 	createStationaryLightSecond(i);
 	createMovingLightSecond(i, gamma);
