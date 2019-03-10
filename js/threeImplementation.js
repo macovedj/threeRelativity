@@ -2,12 +2,10 @@ let moment = require('moment');
 let momentDurationFormatSetup = require("moment-duration-format");
 
 let lastTime = performance.now();
-let rHomeTime = 0;
 let rPhotonTime = 0;
 let time = 0;
 let travellerSpeed = 0;
 let gamma = 1;
-// let movingEndpoint = .5;
 let playing = false;
 let pauseTime = 5;
 let movingLightSecondLines = [];
@@ -27,7 +25,6 @@ let pauseInput = document.querySelector('#pauseTime');
 function resetHandler() {
 	sliderNode.value = 0;
 	gamma = 1;
-	rHomeTime = 0;
 	rPhotonTime = 0;
 	time = 0;
 	speedOfTraveller = 0;
@@ -35,7 +32,6 @@ function resetHandler() {
 	stationaryTimeNode.innerHTML = "00:00:00";
 	labelValue.innerHTML = "0";
 	gammaLabel.innerHTML = "1";
-	// vessel.position.x = 0;
 	movingLine.position.x = 0;
 	photon.position.x = 0;
 	movingSprites.forEach(sprite => scene.remove(sprite));
@@ -122,7 +118,7 @@ function createMovingLightSecond(i, gamma) {
 
 function computeGamma() { return 1/ Math.sqrt(1 - Math.pow(travellerSpeed, 2)); }
 
-const renderTimers= (time, rHomeTime, rPhotonTime) => {
+const renderTimers= (time, rPhotonTime) => {
 	movingPhotonTimeNode.innerText = moment.duration(rPhotonTime).format('mm:ss:SS', { trim: false });
 	stationaryTimeNode.innerText = moment.duration(time).format('mm:ss:SS', { trim: false });
 }
@@ -137,13 +133,11 @@ sliderNode.addEventListener("input", ev => {
 	labelValue.innerHTML = sliderNode.value;
 	gamma = computeGamma();
 	gammaLabel.innerHTML = gamma;
-	// vessel.geometry.vertices[1].x = .5 / gamma;
-	// vessel.scale.set(1 / gamma, 1, 1);
 	movingLightSecondLines.forEach(line => line.scale.set(1 / gamma, 1, 1)) 
 	movingSprites.forEach((sprite,i) => sprite.position.x = movingSprites[0].position.x + i * 1.5 / gamma);
-	// movingLightSecondLines.forEach((line, i) => line.position.x = movingSprites[i].position.x);
 })
 
+// Handle Scroll Logic
 function onMouseWheel(event) {
 	event.preventDefault();
 	camera.position.x += event.deltaX * 0.005;
@@ -153,6 +147,7 @@ function onMouseWheel(event) {
 	camera.position.clampScalar(0, 100);
 }
 
+// Establish the scene
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -170,9 +165,9 @@ var renderer = new THREE.WebGLRenderer();
 	camera.updateProjectionMatrix();
 });
 
+// Create each measurement line and photon
 var stationaryGeometry = new THREE.Geometry();
 var movingGeometry = new THREE.Geometry();
-// var vesselGeometry = new THREE.Geometry();
 var photonGeometry = new THREE.PlaneGeometry(.05,.05,.05);
 
 stationaryGeometry.vertices.push(new THREE.Vector3( -10, 1, 0) );
@@ -183,6 +178,7 @@ movingGeometry.vertices.push(new THREE.Vector3( 100, 1.5, 0) );
 const linesMaterial = new THREE.LineBasicMaterial( { color: 0x9f8ec2 } );
 const movingLinesMaterial = new THREE.LineBasicMaterial( { color: 0x5f9ea0 } );
 
+// Create tick marks on each line
 for ( var i = 0; i <= 200; i++ ) {
 	createStationaryLightSecond(i);
 	createMovingLightSecond(i, gamma);
@@ -190,7 +186,7 @@ for ( var i = 0; i <= 200; i++ ) {
 movingLightSecondLines.forEach(mark => scene.add(mark));
 movingSprites.forEach(sprite => scene.add(sprite));
 
-// create a material, color, or image texture
+// create materials for various geometries
 var stationaryMaterial = new THREE.LineBasicMaterial( { color: 0x9f8ec2 } );
 var movingMaterial = new THREE.LineBasicMaterial( { color: 0x5f9ea0 } );
 const photonMaterial = new THREE.MeshBasicMaterial( { color: 0xffe623, side: THREE.DoubleSide } );
@@ -198,11 +194,6 @@ const photonMaterial = new THREE.MeshBasicMaterial( { color: 0xffe623, side: THR
 var stationaryLine = new THREE.Line( stationaryGeometry, stationaryMaterial );
 var movingLine = new THREE.Line( movingGeometry, movingMaterial );
 var photon = new THREE.Mesh( photonGeometry, photonMaterial );
-// vesselGeometry.verticesNeedUpdate = true
-// vesselGeometry.vertices.push(new THREE.Vector3( 0, .75, 0) );
-// vesselGeometry.vertices.push(new THREE.Vector3( movingEndpoint, .75, 0) );
-// var vessel = new THREE.LineSegments( vesselGeometry, movingMaterial );
-// scene.add(vessel);
 photon.position.y = 2
 camera.position.z = 3;
 
@@ -212,19 +203,19 @@ scene.add(photon);
 
 // update logic
 var update = function() {
+	//stop after pause time
 	if (time > pauseTime * 1000) {
 		playing = false
 	}
 	
+	//update positions and times if not paused
 	if (playing) {
 		const now = performance.now();
 		const sinceLast = now - lastTime;
 		time += sinceLast;
-		rHomeTime += sinceLast / gamma;
 		rPhotonTime = gamma * (time * ( 1 - travellerSpeed));
-		renderTimers( time, rHomeTime, rPhotonTime );
+		renderTimers( time, rPhotonTime );
 		lastTime = now;
-		// vessel.position.x += travellerSpeed * sinceLast * .0005
 		movingLightSecondLines.forEach(line =>  line.position.x += travellerSpeed * sinceLast * .0015);
 		movingSprites.forEach(sprite =>  sprite.position.x += travellerSpeed * sinceLast * .0015);
 		photon.position.x += 1.5 * sinceLast / 1000
