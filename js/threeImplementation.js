@@ -63,6 +63,16 @@ function pauseInputHandler() {
 	pauseTime = pauseInput.value;
 }
 
+// Handle Scroll Logic
+function onMouseWheel(event) {
+	event.preventDefault();
+	camera.position.x += event.deltaX * 0.005;
+
+	// prevent scrolling beyond a min/max value
+
+	camera.position.clampScalar(0, 100);
+}
+
 function createStationaryLightSecond(i) {
 	var lightSecondMark = new THREE.Geometry();
 	lightSecondMark.vertices.push(new THREE.Vector3( i * 1.5, .9, 0));
@@ -113,14 +123,30 @@ function createMovingLightSecond(i, gamma) {
 	movingSprites.push(sprite);
 }
 
+// Establish the scene
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setClearColor(0x333333);
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+window.addEventListener('wheel', onMouseWheel, false);
+window.addEventListener('resize', function () {
+	var width = window.innerWidth;
+	var height = window.innerHeight;
+	renderer.setSize(width, height);
+	camera.aspect = width / height;
+	camera.updateProjectionMatrix();
+});
+
 function computeGamma() { return 1/ Math.sqrt(1 - Math.pow(travellerSpeed, 2)); }
 
 const renderTimers= (time, rPhotonTime) => {
 	movingPhotonTimeNode.innerText = moment.duration(rPhotonTime).format('mm:ss:SS', { trim: false });
 	stationaryTimeNode.innerText = moment.duration(time).format('mm:ss:SS', { trim: false });
 }
-
-
 
 sliderNode.addEventListener("input", ev => {
 	travellerSpeed = ev.target.value;
@@ -130,34 +156,6 @@ sliderNode.addEventListener("input", ev => {
 	movingLightSecondLines.forEach(line => line.scale.set(1 / gamma, 1, 1)) 
 	movingSprites.forEach((sprite,i) => sprite.position.x = movingSprites[0].position.x + i * 1.5 / gamma);
 })
-
-// Handle Scroll Logic
-function onMouseWheel(event) {
-	event.preventDefault();
-	camera.position.x += event.deltaX * 0.005;
-
-	// prevent scrolling beyond a min/max value
-
-	camera.position.clampScalar(0, 100);
-}
-
-// Establish the scene
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-var renderer = new THREE.WebGLRenderer();
-    renderer.setClearColor( 0x333333);
-    renderer.setSize(window.innerWidth, window.innerHeight );
-    document.body.appendChild(renderer.domElement);
-
-	window.addEventListener( 'wheel', onMouseWheel, false);
-    window.addEventListener( 'resize', function() {
-    var width = window.innerWidth;
-    var height = window.innerHeight;
-    renderer.setSize(width, height);
-    camera.aspect = width / height;
-	camera.updateProjectionMatrix();
-});
 
 // Create each measurement line and photon
 var stationaryGeometry = new THREE.Geometry();
