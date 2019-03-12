@@ -70,7 +70,7 @@ function onMouseWheel(event) {
 
 	// prevent scrolling beyond a min/max value
 
-	camera.position.clampScalar(0, 100);
+	camera.position.clampScalar(0, 1000);
 }
 
 function createStationaryLightSecond(i) {
@@ -163,9 +163,9 @@ var movingGeometry = new THREE.Geometry();
 var photonGeometry = new THREE.PlaneGeometry(.05,.05,.05);
 
 stationaryGeometry.vertices.push(new THREE.Vector3( -10, 1, 0) );
-stationaryGeometry.vertices.push(new THREE.Vector3( 100, 1, 0) );
+stationaryGeometry.vertices.push(new THREE.Vector3( 1000, 1, 0) );
 movingGeometry.vertices.push(new THREE.Vector3( -10, 1.5, 0) );
-movingGeometry.vertices.push(new THREE.Vector3( 100, 1.5, 0) );
+movingGeometry.vertices.push(new THREE.Vector3( 1000, 1.5, 0) );
 
 const linesMaterial = new THREE.LineBasicMaterial( { color: 0x9f8ec2 } );
 const movingLinesMaterial = new THREE.LineBasicMaterial( { color: 0x5f9ea0 } );
