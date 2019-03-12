@@ -17,10 +17,13 @@ let movingPhotonTimeNode = document.querySelector('#movingPhotonTime');
 let stationaryTimeNode = document.querySelector('#stationaryTime');          
 let resetButtonNode = document.querySelector('#resetButton');          
 let startButtonNode = document.querySelector('#startButton');          
-let pauseButtonNode = document.querySelector('#pauseButton');          
 let labelValue = document.querySelector('#labelValue');
 let gammaLabel = document.querySelector('#gammaLabel');          
-let pauseInput = document.querySelector('#pauseTime');          
+let pauseInput = document.querySelector('#pauseTime');
+
+startButtonNode.addEventListener("click", startHandler);
+resetButtonNode.addEventListener("click", resetHandler);
+pauseInput.addEventListener("input", pauseInputHandler);
 
 function resetHandler() {
 	sliderNode.value = 0;
@@ -54,12 +57,6 @@ function startHandler() {
 	}
 	playing = true;
 	sliderNode.disabled = true;
-}
-
-function pauseButtonHandler() {
-	playing = false;
-	resumeTime = time;
-	time = pauseTime;
 }
 
 function pauseInputHandler() {
@@ -123,10 +120,7 @@ const renderTimers= (time, rPhotonTime) => {
 	stationaryTimeNode.innerText = moment.duration(time).format('mm:ss:SS', { trim: false });
 }
 
-startButtonNode.addEventListener("click", startHandler);
-pauseButtonNode.addEventListener("click", pauseButtonHandler);
-resetButtonNode.addEventListener("click", resetHandler);
-pauseInput.addEventListener("input", pauseInputHandler);
+
 
 sliderNode.addEventListener("input", ev => {
 	travellerSpeed = ev.target.value;
