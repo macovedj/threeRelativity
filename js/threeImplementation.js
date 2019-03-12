@@ -2,7 +2,7 @@ let moment = require('moment');
 let momentDurationFormatSetup = require("moment-duration-format");
 
 let lastTime = performance.now();
-let rPhotonTime = 0;
+let relativisticPhotonTime = 0;
 let time = 0;
 let travellerSpeed = 0;
 let gamma = 1;
@@ -28,7 +28,7 @@ pauseInput.addEventListener("input", pauseInputHandler);
 function resetHandler() {
 	sliderNode.value = 0;
 	gamma = 1;
-	rPhotonTime = 0;
+	relativisticPhotonTime = 0;
 	time = 0;
 	speedOfTraveller = 0;
 	movingPhotonTimeNode.innerHTML = "00:00:00";
@@ -143,8 +143,8 @@ window.addEventListener('resize', function () {
 
 function computeGamma() { return 1/ Math.sqrt(1 - Math.pow(travellerSpeed, 2)); }
 
-const renderTimers= (time, rPhotonTime) => {
-	movingPhotonTimeNode.innerText = moment.duration(rPhotonTime).format('mm:ss:SS', { trim: false });
+const renderTimers= (time, relativisticPhotonTime) => {
+	movingPhotonTimeNode.innerText = moment.duration(relativisticPhotonTime).format('mm:ss:SS', { trim: false });
 	stationaryTimeNode.innerText = moment.duration(time).format('mm:ss:SS', { trim: false });
 }
 
@@ -205,8 +205,8 @@ var update = function() {
 		const now = performance.now();
 		const sinceLast = now - lastTime;
 		time += sinceLast;
-		rPhotonTime = gamma * (time * ( 1 - travellerSpeed));
-		renderTimers( time, rPhotonTime );
+		relativisticPhotonTime = gamma * (time * ( 1 - travellerSpeed));
+		renderTimers( time, relativisticPhotonTime );
 		lastTime = now;
 		movingLightSecondLines.forEach(line =>  line.position.x += travellerSpeed * sinceLast * .0015);
 		movingSprites.forEach(sprite =>  sprite.position.x += travellerSpeed * sinceLast * .0015);
