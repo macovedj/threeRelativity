@@ -9,7 +9,8 @@ let gamma = 1;
 let playing = false;
 let pauseTime = 5;
 let movingLightSecondLines = [];
-let movingSprites = [];
+let movingSpritesA = [];
+let movingSpritesB = [];
 let resumeTime;
 
 let sliderNode = document.querySelector('#speedSlider');          
@@ -41,16 +42,19 @@ function resetHandler() {
 	gammaLabel.innerHTML = "1";
 	movingLineA.position.x = 0;
 	photonA.position.x = 0;
-	movingSprites.forEach(sprite => scene.remove(sprite));
+	movingSpritesA.forEach(sprite => scene.remove(sprite));
+	movingSpritesB.forEach(sprite => scene.remove(sprite));
 	movingLightSecondLines.forEach(line => scene.remove(line));
 	movingLightSecondLines = [];
-	movingSprites = [];
+	movingSpritesA = [];
+	movingSpritesB = [];
 	pauseTime = pauseInput.value;
 	for (var i = 0; i <= 200; i++) {
 		createMovingLightSecondA(i, gamma);
 	}
 	movingLightSecondLines.forEach(line => scene.add(line))
-	movingSprites.forEach(sprite => scene.add(sprite))
+	movingSpritesA.forEach(sprite => scene.add(sprite))
+	movingSpritesB.forEach(sprite => scene.add(sprite))
 	sliderNode.disabled = false;
 	playing = false;
 }
@@ -159,7 +163,7 @@ function createMovingLightSecondA(i, gamma) {
 	var sprite = new THREE.Sprite(spriteMat);
 	sprite.position.x = i * 1.5 / gamma;
 	sprite.position.y = .9;
-	movingSprites.push(sprite);
+	movingSpritesA.push(sprite);
 }
 
 function createMovingLightSecondB(i, gamma) {
@@ -184,7 +188,7 @@ function createMovingLightSecondB(i, gamma) {
 	var sprite = new THREE.Sprite(spriteMat);
 	sprite.position.x = i * 1.5 / gamma;
 	sprite.position.y = -1.6;
-	movingSprites.push(sprite);
+	movingSpritesB.push(sprite);
 }
 
 // Establish the scene
@@ -218,7 +222,8 @@ sliderNode.addEventListener("input", ev => {
 	gamma = computeGamma();
 	gammaLabel.innerHTML = gamma;
 	movingLightSecondLines.forEach(line => line.scale.set(1 / gamma, 1, 1)) 
-	movingSprites.forEach((sprite, i) => sprite.position.x = movingSprites[0].position.x + i * 1.5 / gamma);
+	movingSpritesA.forEach((sprite, i) => sprite.position.x = movingSpritesA[0].position.x + i * 1.5 / gamma);
+	movingSpritesB.forEach((sprite, i) => sprite.position.x = movingSpritesB[0].position.x + i * 1.5 / gamma);
 })
 
 // Create each measurement line and photon
@@ -251,7 +256,8 @@ for ( var i = 0; i <= 200; i++ ) {
 	createMovingLightSecondB(i, gamma);
 }
 movingLightSecondLines.forEach(mark => scene.add(mark));
-movingSprites.forEach(sprite => scene.add(sprite));
+movingSpritesA.forEach(sprite => scene.add(sprite));
+movingSpritesB.forEach(sprite => scene.add(sprite));
 
 // create materials for various geometries
 var stationaryMaterial = new THREE.LineBasicMaterial( { color: 0x9f8ec2 } );
@@ -293,7 +299,7 @@ var update = function() {
 		renderTimers( time, relativisticPhotonTime );
 		lastTime = now;
 		movingLightSecondLines.forEach(line =>  line.position.x += travellerSpeed * sinceLast * .0015);
-		movingSprites.forEach(sprite =>  sprite.position.x += travellerSpeed * sinceLast * .0015);
+		movingSpritesA.forEach(sprite =>  sprite.position.x += travellerSpeed * sinceLast * .0015);
 		photonA.position.x += 1.5 * sinceLast / 1000
 	}
 }	
