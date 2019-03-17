@@ -1,4 +1,8 @@
-{
+{ "license": "MIT",
+  "scripts": {
+    "build": "rm -rf docs && cp -R dist docs",
+    "test": "jest"
+  },
   "dependencies": {
     "moment": "^2.24.0",
     "moment-duration-format": "^2.2.2"
