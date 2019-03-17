@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <title>Special Relativity Three</title>
+    <link href="/styles.8986bff4.css" rel="stylesheet">
+    <style>body { margin: 0; }
+      canvas { width: 100%; height: 100%; };</style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r79/three.min.js"></script>
+  <script src="/styles.8986bff4.js"></script></head>
+
+  <body>
+    <!-- <script src="./index.js"></script> -->
+    
+    <script src="/three.bf944244.js"></script>
+    <script src="/threeImplementation.8ff572f5.js" defer=""></script>
+    <div class="outer-container">
+      <div class="clock-container">
+        <input id="speedSlider" value="0" type="range" step="0.01" min="0" max=".99">
+        <div id="sliderLabel">Speed of traveller (fraction of speed of light): </div>
+        <div id="labelValue">0</div>
+        <div>gamma:</div>
+        <div id="gammaLabel">1</div>
+        <input id="pauseTime" value="5" type="number">
+        <div>pause time(sec)</div>
+        <table>
+          <tr>
+            <td class="stationary-clock-label">Stationary Time: </td>
+            <td id="stationaryTime" class="stationary-clock-value">00:00:00</td>
+          </tr>
+          <tr>
+            <td class="moving-photon-clock-label">Photon Moving Time: </td>
+            <td id="movingPhotonTime" class="moving-photon-clock-value">00:00:00</td>
+          </tr>
+        </table>
+      </div>
+      <button id="startButton">Start</button>
+      <button id="resetButton">Reset</button>
+      <button id="recenterXButton">Recenter X Coordinate</button>
+      <button id="recenterYButton">Recenter Y Coordinate</button>
+    </div>
+</body></html>
