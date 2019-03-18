@@ -1,7 +1,7 @@
 {
   "license": "MIT",
   "scripts": {
-    "build": "rm -rf docs && cp -R dist docs",
+    "build": "rm -rf docs && npx parcel build --public-url /threeRelativity --out-dir docs index.html",
     "test": "jest"
   },
   "dependencies": {
