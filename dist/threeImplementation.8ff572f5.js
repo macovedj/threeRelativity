@@ -6399,62 +6399,49 @@ var gamma = 1;
 var playing = false;
 var pauseTime = 5;
 var movingLightSecondLines = [];
-var movingSpritesA = [];
-var movingSpritesB = [];
+var movingSprites = [];
 var resumeTime;
 var sliderNode = document.querySelector('#speedSlider');
 var movingPhotonTimeNode = document.querySelector('#movingPhotonTime');
 var stationaryTimeNode = document.querySelector('#stationaryTime');
 var resetButtonNode = document.querySelector('#resetButton');
 var startButtonNode = document.querySelector('#startButton');
-var recenterXButtonNode = document.querySelector('#recenterXButton');
-var recenterYButtonNode = document.querySelector('#recenterYButton');
 var labelValue = document.querySelector('#labelValue');
 var gammaLabel = document.querySelector('#gammaLabel');
 var pauseInput = document.querySelector('#pauseTime');
 startButtonNode.addEventListener("click", startHandler);
 resetButtonNode.addEventListener("click", resetHandler);
 pauseInput.addEventListener("input", pauseInputHandler);
-recenterXButtonNode.addEventListener("click", recenterXHandler);
-recenterYButtonNode.addEventListener("click", recenterYHandler);
 
 function resetHandler() {
   sliderNode.value = 0;
   gamma = 1;
   relativisticPhotonTime = 0;
   time = 0;
-  travellerSpeed = 0;
+  speedOfTraveller = 0;
   movingPhotonTimeNode.innerHTML = "00:00:00";
   stationaryTimeNode.innerHTML = "00:00:00";
   labelValue.innerHTML = "0";
   gammaLabel.innerHTML = "1";
-  movingLineA.position.x = 0;
-  photonA.position.x = 0;
-  movingSpritesA.forEach(function (sprite) {
-    return scene.remove(sprite);
-  });
-  movingSpritesB.forEach(function (sprite) {
+  movingLine.position.x = 0;
+  photon.position.x = 0;
+  movingSprites.forEach(function (sprite) {
     return scene.remove(sprite);
   });
   movingLightSecondLines.forEach(function (line) {
     return scene.remove(line);
   });
   movingLightSecondLines = [];
-  movingSpritesA = [];
-  movingSpritesB = [];
-  pauseTime = pauseInput.value;
+  movingSprites = [];
 
   for (var i = 0; i <= 200; i++) {
-    createMovingLightSecondA(i, gamma);
+    createMovingLightSecond(i, gamma);
   }
 
   movingLightSecondLines.forEach(function (line) {
     return scene.add(line);
   });
-  movingSpritesA.forEach(function (sprite) {
-    return scene.add(sprite);
-  });
-  movingSpritesB.forEach(function (sprite) {
+  movingSprites.forEach(function (sprite) {
     return scene.add(sprite);
   });
   sliderNode.disabled = false;
@@ -6479,21 +6466,12 @@ function pauseInputHandler() {
 
 function onMouseWheel(event) {
   event.preventDefault();
-  camera.position.x += event.deltaX * 0.005;
-  camera.position.y += event.deltaY * 0.005; // prevent scrolling beyond a min/max value
+  camera.position.x += event.deltaX * 0.005; // prevent scrolling beyond a min/max value
 
-  camera.position.clampScalar(-1000, 1000);
+  camera.position.clampScalar(0, 1000);
 }
 
-function recenterXHandler() {
-  camera.position.x = 0;
-}
-
-function recenterYHandler() {
-  camera.position.y = 0;
-}
-
-function createStationaryLightSecondA(i) {
+function createStationaryLightSecond(i) {
   var lightSecondMark = new THREE.Geometry();
   lightSecondMark.vertices.push(new THREE.Vector3(i * 1.5, .9, 0));
   lightSecondMark.vertices.push(new THREE.Vector3(i * 1.5, 1.1, 0));
@@ -6518,32 +6496,7 @@ function createStationaryLightSecondA(i) {
   scene.add(sprite);
 }
 
-function createStationaryLightSecondB(i) {
-  var lightSecondMark = new THREE.Geometry();
-  lightSecondMark.vertices.push(new THREE.Vector3(i * 1.5, -.6, 0));
-  lightSecondMark.vertices.push(new THREE.Vector3(i * 1.5, -.4, 0));
-  var lightSecondLine = new THREE.LineSegments(lightSecondMark, movingLinesMaterial);
-  var canvas = document.createElement('canvas');
-  canvas.width = 256;
-  canvas.height = 256;
-  var ctx = canvas.getContext("2d");
-  ctx.font = "22pt Arial";
-  ctx.fillStyle = "#5f9ea0";
-  ctx.textAlign = "center";
-  ctx.fillText(i, 128, 44);
-  var tex = new THREE.Texture(canvas);
-  tex.needsUpdate = true;
-  var spriteMat = new THREE.SpriteMaterial({
-    map: tex
-  });
-  var sprite = new THREE.Sprite(spriteMat);
-  sprite.position.x = i * 1.5;
-  sprite.position.y = -1.1;
-  scene.add(lightSecondLine);
-  scene.add(sprite);
-}
-
-function createMovingLightSecondA(i, gamma) {
+function createMovingLightSecond(i, gamma) {
   var movingLightSecondMark = new THREE.Geometry();
   movingLightSecondMark.vertices.push(new THREE.Vector3(i * 1.5 / gamma, 1.4, 0));
   movingLightSecondMark.vertices.push(new THREE.Vector3(i * 1.5 / gamma, 1.6, 0));
@@ -6565,32 +6518,7 @@ function createMovingLightSecondA(i, gamma) {
   var sprite = new THREE.Sprite(spriteMat);
   sprite.position.x = i * 1.5 / gamma;
   sprite.position.y = .9;
-  movingSpritesA.push(sprite);
-}
-
-function createMovingLightSecondB(i, gamma) {
-  var movingLightSecondMark = new THREE.Geometry();
-  movingLightSecondMark.vertices.push(new THREE.Vector3(i * 1.5 / gamma, -1.1, 0));
-  movingLightSecondMark.vertices.push(new THREE.Vector3(i * 1.5 / gamma, -.9, 0));
-  var movingLightSecondLine = new THREE.LineSegments(movingLightSecondMark, linesMaterial);
-  movingLightSecondLines.push(movingLightSecondLine);
-  var canvas = document.createElement('canvas');
-  canvas.width = 256;
-  canvas.height = 256;
-  var ctx = canvas.getContext("2d");
-  ctx.font = "22pt Arial";
-  ctx.fillStyle = "#9f8ec2";
-  ctx.textAlign = "center";
-  ctx.fillText(i, 128, 44);
-  var tex = new THREE.Texture(canvas);
-  tex.needsUpdate = true;
-  var spriteMat = new THREE.SpriteMaterial({
-    map: tex
-  });
-  var sprite = new THREE.Sprite(spriteMat);
-  sprite.position.x = i * 1.5 / gamma;
-  sprite.position.y = -1.6;
-  movingSpritesB.push(sprite);
+  movingSprites.push(sprite);
 } // Establish the scene
 
 
@@ -6630,28 +6558,18 @@ sliderNode.addEventListener("input", function (ev) {
   movingLightSecondLines.forEach(function (line) {
     return line.scale.set(1 / gamma, 1, 1);
   });
-  movingSpritesA.forEach(function (sprite, i) {
-    return sprite.position.x = movingSpritesA[0].position.x + i * 1.5 / gamma;
-  });
-  movingSpritesB.forEach(function (sprite, i) {
-    return sprite.position.x = movingSpritesB[0].position.x + i * 1.5 / gamma;
+  movingSprites.forEach(function (sprite, i) {
+    return sprite.position.x = movingSprites[0].position.x + i * 1.5 / gamma;
   });
 }); // Create each measurement line and photon
 
-var stationaryGeometryA = new THREE.Geometry();
-var movingGeometryA = new THREE.Geometry();
-var photonGeometryA = new THREE.PlaneGeometry(.05, .05, .05);
-var stationaryGeometryB = new THREE.Geometry();
-var movingGeometryB = new THREE.Geometry();
-var photonGeometryB = new THREE.PlaneGeometry(.05, .05, .05);
-stationaryGeometryA.vertices.push(new THREE.Vector3(-1000, 1, 0));
-stationaryGeometryA.vertices.push(new THREE.Vector3(1000, 1, 0));
-movingGeometryA.vertices.push(new THREE.Vector3(-1000, 1.5, 0));
-movingGeometryA.vertices.push(new THREE.Vector3(1000, 1.5, 0));
-stationaryGeometryB.vertices.push(new THREE.Vector3(-1000, -1, 0));
-stationaryGeometryB.vertices.push(new THREE.Vector3(1000, -1, 0));
-movingGeometryB.vertices.push(new THREE.Vector3(-1000, -.5, 0));
-movingGeometryB.vertices.push(new THREE.Vector3(1000, -.5, 0));
+var stationaryGeometry = new THREE.Geometry();
+var movingGeometry = new THREE.Geometry();
+var photonGeometry = new THREE.PlaneGeometry(.05, .05, .05);
+stationaryGeometry.vertices.push(new THREE.Vector3(-10, 1, 0));
+stationaryGeometry.vertices.push(new THREE.Vector3(1000, 1, 0));
+movingGeometry.vertices.push(new THREE.Vector3(-10, 1.5, 0));
+movingGeometry.vertices.push(new THREE.Vector3(1000, 1.5, 0));
 var linesMaterial = new THREE.LineBasicMaterial({
   color: 0x9f8ec2
 });
@@ -6660,19 +6578,14 @@ var movingLinesMaterial = new THREE.LineBasicMaterial({
 }); // Create tick marks on each line
 
 for (var i = 0; i <= 200; i++) {
-  createStationaryLightSecondA(i);
-  createMovingLightSecondA(i, gamma);
-  createStationaryLightSecondB(i);
-  createMovingLightSecondB(i, gamma);
+  createStationaryLightSecond(i);
+  createMovingLightSecond(i, gamma);
 }
 
 movingLightSecondLines.forEach(function (mark) {
   return scene.add(mark);
 });
-movingSpritesA.forEach(function (sprite) {
-  return scene.add(sprite);
-});
-movingSpritesB.forEach(function (sprite) {
+movingSprites.forEach(function (sprite) {
   return scene.add(sprite);
 }); // create materials for various geometries
 
@@ -6686,21 +6599,14 @@ var photonMaterial = new THREE.MeshBasicMaterial({
   color: 0xffe623,
   side: THREE.DoubleSide
 });
-var stationaryLineA = new THREE.Line(stationaryGeometryA, stationaryMaterial);
-var movingLineA = new THREE.Line(movingGeometryA, movingMaterial);
-var photonA = new THREE.Mesh(photonGeometryA, photonMaterial);
-photonA.position.y = 2;
-var stationaryLineB = new THREE.Line(stationaryGeometryB, stationaryMaterial);
-var movingLineB = new THREE.Line(movingGeometryB, movingMaterial);
-var photonB = new THREE.Mesh(photonGeometryB, photonMaterial);
-photonB.position.y = 0;
+var stationaryLine = new THREE.Line(stationaryGeometry, stationaryMaterial);
+var movingLine = new THREE.Line(movingGeometry, movingMaterial);
+var photon = new THREE.Mesh(photonGeometry, photonMaterial);
+photon.position.y = 2;
 camera.position.z = 3;
-scene.add(stationaryLineA);
-scene.add(movingLineA);
-scene.add(photonA);
-scene.add(stationaryLineB);
-scene.add(movingLineB);
-scene.add(photonB); // update logic
+scene.add(stationaryLine);
+scene.add(movingLine);
+scene.add(photon); // update logic
 
 var update = function update() {
   //stop after pause time
@@ -6719,10 +6625,10 @@ var update = function update() {
     movingLightSecondLines.forEach(function (line) {
       return line.position.x += travellerSpeed * sinceLast * .0015;
     });
-    movingSpritesA.forEach(function (sprite) {
+    movingSprites.forEach(function (sprite) {
       return sprite.position.x += travellerSpeed * sinceLast * .0015;
     });
-    photonA.position.x += 1.5 * sinceLast / 1000;
+    photon.position.x += 1.5 * sinceLast / 1000;
   }
 }; // draw Scene
 
@@ -6766,7 +6672,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63769" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57061" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

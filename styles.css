@@ -14,14 +14,9 @@ table {
   width: 100%;
 }
 
-.stationary-clock-label-A {
+.stationary-clock-label {
   font-size: 5vmin;
   color: #9f8ec2;
-}
-
-.stationary-clock-label-B {
-  font-size: 5vmin;
-  color: cadetblue; 
 }
 
 .moving-clock-label {
@@ -29,25 +24,14 @@ table {
   color: cadetblue;
 }
 
-.moving-photon-clock-label-A {
+.moving-photon-clock-label {
   font-size: 5vmin;
   color: cadetblue;
 }
 
-.moving-photon-clock-label-B {
-  font-size: 5vmin;
-  color: #9f8ec2;
-}
-
-.stationary-clock-valueA {
+.stationary-clock-value {
   font-size: 5vmin;
   text-align: right;
-}
-
-.stationary-clock-valueB {
-  font-size: 5vmin;
-  text-align: right;
-  color: cadetblue;
 }
 
 .moving-clock-value {
@@ -56,16 +40,10 @@ table {
   color: cadetblue;
 }
 
-.moving-photon-clock-valueA {
+.moving-photon-clock-value {
   font-size: 5vmin;
   text-align: right;
   color: cadetblue;
-}
-
-.moving-photon-clock-valueB {
-  font-size: 5vmin;
-  text-align: right;
-  color: #9f8ec2;
 }
 
 .clock-container {
