@@ -2,20 +2,25 @@ let moment = require('moment');
 let momentDurationFormatSetup = require("moment-duration-format");
 
 let lastTime = performance.now();
-let relativisticPhotonTime = 0;
+let relativisticPhotonTimeA = 0;
+let relativisticPhotonTimeB = 0;
 let time = 0;
 let travellerSpeed = 0;
 let gamma = 1;
 let playing = false;
 let pauseTime = 5;
-let movingLightSecondLines = [];
+let movingLightSecondLinesA = [];
+let movingLightSecondLinesB = [];
 let movingSpritesA = [];
 let movingSpritesB = [];
 let resumeTime;
+let loopCount = 0;
 
 let sliderNode = document.querySelector('#speedSlider');          
-let movingPhotonTimeNode = document.querySelector('#movingPhotonTime');          
-let stationaryTimeNode = document.querySelector('#stationaryTime');          
+let movingPhotonTimeNodeA = document.querySelector('#movingPhotonTimeA');          
+let movingPhotonTimeNodeB = document.querySelector('#movingPhotonTimeB');          
+let stationaryTimeNodeA = document.querySelector('#stationaryTimeA');          
+let stationaryTimeNodeB = document.querySelector('#stationaryTimeB');          
 let resetButtonNode = document.querySelector('#resetButton');          
 let startButtonNode = document.querySelector('#startButton');          
 let recenterXButtonNode = document.querySelector('#recenterXButton');          
@@ -33,26 +38,33 @@ recenterYButtonNode.addEventListener("click", recenterYHandler);
 function resetHandler() {
 	sliderNode.value = 0;
 	gamma = 1;
-	relativisticPhotonTime = 0;
+	relativisticPhotonTimeA = 0;
+	relativisticPhotonTimeB = 0;
 	time = 0;
 	travellerSpeed = 0;
-	movingPhotonTimeNode.innerHTML = "00:00:00";
-	stationaryTimeNode.innerHTML = "00:00:00";
+	movingPhotonTimeNodeA.innerHTML = "00:00:00";
+	movingPhotonTimeNodeB.innerHTML = "00:00:00";
+	stationaryTimeNodeA.innerHTML = "00:00:00";
+	stationaryTimeNodeB.innerHTML = "00:00:00";
 	labelValue.innerHTML = "0";
 	gammaLabel.innerHTML = "1";
 	movingLineA.position.x = 0;
 	photonA.position.x = 0;
 	movingSpritesA.forEach(sprite => scene.remove(sprite));
 	movingSpritesB.forEach(sprite => scene.remove(sprite));
-	movingLightSecondLines.forEach(line => scene.remove(line));
-	movingLightSecondLines = [];
+	movingLightSecondLinesA.forEach(line => scene.remove(line));
+	movingLightSecondLinesB.forEach(line => scene.remove(line));
+	movingLightSecondLinesA = [];
+	movingLightSecondLinesB = [];
 	movingSpritesA = [];
 	movingSpritesB = [];
 	pauseTime = pauseInput.value;
 	for (var i = 0; i <= 200; i++) {
 		createMovingLightSecondA(i, gamma);
+		createMovingLightSecondB(i, gamma);
 	}
-	movingLightSecondLines.forEach(line => scene.add(line))
+	movingLightSecondLinesA.forEach(line => scene.add(line))
+	movingLightSecondLinesB.forEach(line => scene.add(line))
 	movingSpritesA.forEach(sprite => scene.add(sprite))
 	movingSpritesB.forEach(sprite => scene.add(sprite))
 	sliderNode.disabled = false;
@@ -75,7 +87,7 @@ function pauseInputHandler() {
 // Handle Scroll Logic
 function onMouseWheel(event) {
 	event.preventDefault();
-	camera.position.x += event.deltaX * 0.005;
+	camera.position.x -= event.deltaX * 0.005;
 	camera.position.y += event.deltaY * 0.005;
 
 	// prevent scrolling beyond a min/max value
@@ -146,7 +158,7 @@ function createMovingLightSecondA(i, gamma) {
 	movingLightSecondMark.vertices.push(new THREE.Vector3( i * 1.5 / gamma, 1.4, 0));
 	movingLightSecondMark.vertices.push(new THREE.Vector3( i * 1.5 / gamma, 1.6, 0));
 	var movingLightSecondLine = new THREE.LineSegments( movingLightSecondMark, movingLinesMaterial );
-	movingLightSecondLines.push(movingLightSecondLine);
+	movingLightSecondLinesA.push(movingLightSecondLine);
 	let canvas = document.createElement('canvas');
 	canvas.width = 256;
 	canvas.height = 256;
@@ -171,7 +183,7 @@ function createMovingLightSecondB(i, gamma) {
 	movingLightSecondMark.vertices.push(new THREE.Vector3(i * 1.5 / gamma, -1.1, 0));
 	movingLightSecondMark.vertices.push(new THREE.Vector3(i * 1.5 / gamma, -.9, 0));
 	var movingLightSecondLine = new THREE.LineSegments(movingLightSecondMark, linesMaterial);
-	movingLightSecondLines.push(movingLightSecondLine);
+	movingLightSecondLinesB.push(movingLightSecondLine);
 	let canvas = document.createElement('canvas');
 	canvas.width = 256;
 	canvas.height = 256;
@@ -211,9 +223,11 @@ window.addEventListener('resize', function () {
 
 function computeGamma() { return 1/ Math.sqrt(1 - Math.pow(travellerSpeed, 2)); }
 
-const renderTimers= (time, relativisticPhotonTime) => {
-	movingPhotonTimeNode.innerText = moment.duration(relativisticPhotonTime).format('mm:ss:SS', { trim: false });
-	stationaryTimeNode.innerText = moment.duration(time).format('mm:ss:SS', { trim: false });
+const renderTimers= (time, relativisticPhotonTimeA, relativisticPhotonTimeB) => {
+	movingPhotonTimeNodeA.innerText = moment.duration(relativisticPhotonTimeA).format('mm:ss:SS', { trim: false });
+	movingPhotonTimeNodeB.innerText = moment.duration(relativisticPhotonTimeB).format('mm:ss:SS', { trim: false });
+	stationaryTimeNodeA.innerText = moment.duration(time).format('mm:ss:SS', { trim: false });
+	stationaryTimeNodeB.innerText = moment.duration(time).format('mm:ss:SS', { trim: false });
 }
 
 sliderNode.addEventListener("input", ev => {
@@ -221,9 +235,10 @@ sliderNode.addEventListener("input", ev => {
 	labelValue.innerHTML = sliderNode.value;
 	gamma = computeGamma();
 	gammaLabel.innerHTML = gamma;
-	movingLightSecondLines.forEach(line => line.scale.set(1 / gamma, 1, 1)) 
-	movingSpritesA.forEach((sprite, i) => sprite.position.x = movingSpritesA[0].position.x + i * 1.5 / gamma);
-	movingSpritesB.forEach((sprite, i) => sprite.position.x = movingSpritesB[0].position.x + i * 1.5 / gamma);
+	movingLightSecondLinesA.forEach(line => line.scale.set(1 / gamma, 1, 1)) 
+	movingLightSecondLinesB.forEach(line => line.scale.set(1 / gamma, 1, 1)) 
+	movingSpritesA.forEach((sprite, i) => sprite.position.x = movingSpritesA[200].position.x + (i - 200) * 1.5 / gamma);
+	movingSpritesB.forEach((sprite, i) => sprite.position.x = movingSpritesB[200].position.x + (i - 200) * 1.5 / gamma);
 })
 
 // Create each measurement line and photon
@@ -249,13 +264,14 @@ const linesMaterial = new THREE.LineBasicMaterial( { color: 0x9f8ec2 } );
 const movingLinesMaterial = new THREE.LineBasicMaterial( { color: 0x5f9ea0 } );
 
 // Create tick marks on each line
-for ( var i = 0; i <= 200; i++ ) {
+for ( var i = -200; i <= 200; i++ ) {
 	createStationaryLightSecondA(i);
 	createMovingLightSecondA(i, gamma);
 	createStationaryLightSecondB(i);
 	createMovingLightSecondB(i, gamma);
 }
-movingLightSecondLines.forEach(mark => scene.add(mark));
+movingLightSecondLinesA.forEach(mark => scene.add(mark));
+movingLightSecondLinesB.forEach(mark => scene.add(mark));
 movingSpritesA.forEach(sprite => scene.add(sprite));
 movingSpritesB.forEach(sprite => scene.add(sprite));
 
@@ -295,12 +311,16 @@ var update = function() {
 		const now = performance.now();
 		const sinceLast = now - lastTime;
 		time += sinceLast;
-		relativisticPhotonTime = gamma * (time * ( 1 - travellerSpeed));
-		renderTimers( time, relativisticPhotonTime );
+		relativisticPhotonTimeA = gamma * time * ( 1 - travellerSpeed);
+		relativisticPhotonTimeB = gamma * (time + time * travellerSpeed);
+		renderTimers( time, relativisticPhotonTimeA, relativisticPhotonTimeB );
 		lastTime = now;
-		movingLightSecondLines.forEach(line =>  line.position.x += travellerSpeed * sinceLast * .0015);
+		movingLightSecondLinesA.forEach(line =>  line.position.x += travellerSpeed * sinceLast * .0015);
+		movingLightSecondLinesB.forEach(line =>  line.position.x -= travellerSpeed * sinceLast * .0015);
 		movingSpritesA.forEach(sprite =>  sprite.position.x += travellerSpeed * sinceLast * .0015);
+		movingSpritesB.forEach(sprite =>  sprite.position.x -= travellerSpeed * sinceLast * .0015);
 		photonA.position.x += 1.5 * sinceLast / 1000
+		photonB.position.x += 1.5 * sinceLast / 1000
 	}
 }	
 
@@ -314,6 +334,7 @@ var GameLoop = function() {
   update();
   render();
   requestAnimationFrame( GameLoop );
+  loopCount++;
 };
 
 GameLoop();
