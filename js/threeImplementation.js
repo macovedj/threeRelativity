@@ -73,6 +73,15 @@ function onMouseWheel(event) {
 	camera.position.clampScalar(0, 1000);
 }
 
+function onTouchMove(event) {
+	event.preventDefault();
+	camera.position.x += event.deltaX * 0.005;
+
+	// prevent scrolling beyond a min/max value
+
+	camera.position.clampScalar(0, 1000);
+}
+
 function createStationaryLightSecond(i) {
 	var lightSecondMark = new THREE.Geometry();
 	lightSecondMark.vertices.push(new THREE.Vector3(i * 1.5, .9, 0));
@@ -133,6 +142,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 window.addEventListener('wheel', onMouseWheel, false);
+window.addEventListener('touchmove', onTouchMove, false);
 window.addEventListener('resize', function () {
 	var width = window.innerWidth;
 	var height = window.innerHeight;
