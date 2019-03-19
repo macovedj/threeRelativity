@@ -11,6 +11,7 @@ let pauseTime = 5;
 let movingLightSecondLines = [];
 let movingSprites = [];
 let resumeTime;
+let orig = 0;
 
 let sliderNode = document.querySelector('#speedSlider');
 let movingPhotonTimeNode = document.querySelector('#movingPhotonTime');
@@ -75,13 +76,25 @@ function onMouseWheel(event) {
 
 function onTouchMove(event) {
 	event.preventDefault();
-	camera.position.x += event.deltaX * 0.005;
+	camera.position.x += event.touches[0].screenX - orig;
 
 	// prevent scrolling beyond a min/max value
 
 	camera.position.clampScalar(0, 1000);
+	console.log('touch move happened!', event.touches[0].screenX - orig);
 }
 
+function onTouchStart(event) {
+	event.preventDefault();
+	orig = event.touches[0].screenX
+	console.log('touch start works!!!!', event.touches)
+	console.log('touch start works!!!!', orig)
+}
+
+function onTouchEnd(event) {
+	event.preventDefault();
+	console.log('touch end works!!!!', event.touches)
+}
 function createStationaryLightSecond(i) {
 	var lightSecondMark = new THREE.Geometry();
 	lightSecondMark.vertices.push(new THREE.Vector3(i * 1.5, .9, 0));
@@ -142,7 +155,9 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 window.addEventListener('wheel', onMouseWheel, false);
-window.addEventListener('touchmove', onTouchMove, false);
+window.addEventListener('touchstart', onTouchStart, { passive: false});
+window.addEventListener('touchmove', onTouchMove, { passive: false});
+window.addEventListener('touchend', onTouchEnd, { passive: false});
 window.addEventListener('resize', function () {
 	var width = window.innerWidth;
 	var height = window.innerHeight;

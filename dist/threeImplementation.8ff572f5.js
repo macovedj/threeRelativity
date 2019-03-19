@@ -6401,6 +6401,7 @@ var pauseTime = 5;
 var movingLightSecondLines = [];
 var movingSprites = [];
 var resumeTime;
+var orig = 0;
 var sliderNode = document.querySelector('#speedSlider');
 var movingPhotonTimeNode = document.querySelector('#movingPhotonTime');
 var stationaryTimeNode = document.querySelector('#stationaryTime');
@@ -6471,6 +6472,26 @@ function onMouseWheel(event) {
   camera.position.clampScalar(0, 1000);
 }
 
+function onTouchMove(event) {
+  event.preventDefault();
+  camera.position.x += event.touches[0].screenX - orig; // prevent scrolling beyond a min/max value
+
+  camera.position.clampScalar(0, 1000);
+  console.log('touch move happened!', event.touches[0].screenX - orig);
+}
+
+function onTouchStart(event) {
+  event.preventDefault();
+  orig = event.touches[0].screenX;
+  console.log('touch start works!!!!', event.touches);
+  console.log('touch start works!!!!', orig);
+}
+
+function onTouchEnd(event) {
+  event.preventDefault();
+  console.log('touch end works!!!!', event.touches);
+}
+
 function createStationaryLightSecond(i) {
   var lightSecondMark = new THREE.Geometry();
   lightSecondMark.vertices.push(new THREE.Vector3(i * 1.5, .9, 0));
@@ -6529,6 +6550,15 @@ renderer.setClearColor(0x333333);
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 window.addEventListener('wheel', onMouseWheel, false);
+window.addEventListener('touchstart', onTouchStart, {
+  passive: false
+});
+window.addEventListener('touchmove', onTouchMove, {
+  passive: false
+});
+window.addEventListener('touchend', onTouchEnd, {
+  passive: false
+});
 window.addEventListener('resize', function () {
   var width = window.innerWidth;
   var height = window.innerHeight;
@@ -6672,7 +6702,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57061" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58769" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
