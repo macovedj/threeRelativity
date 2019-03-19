@@ -76,7 +76,7 @@ function onMouseWheel(event) {
 
 function onTouchMove(event) {
 	event.preventDefault();
-	camera.position.x += event.touches[0].screenX - orig;
+	camera.position.x += (event.touches[0].screenX - orig) * .005;
 
 	// prevent scrolling beyond a min/max value
 

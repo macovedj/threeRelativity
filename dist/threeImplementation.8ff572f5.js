@@ -6474,7 +6474,7 @@ function onMouseWheel(event) {
 
 function onTouchMove(event) {
   event.preventDefault();
-  camera.position.x += event.touches[0].screenX - orig; // prevent scrolling beyond a min/max value
+  camera.position.x += (event.touches[0].screenX - orig) * .005; // prevent scrolling beyond a min/max value
 
   camera.position.clampScalar(0, 1000);
   console.log('touch move happened!', event.touches[0].screenX - orig);
@@ -6702,7 +6702,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58769" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50923" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
