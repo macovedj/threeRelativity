@@ -89,9 +89,11 @@ function onTouchMove(event) {
 }
 
 function onTouchStart(event) {
-	if (event.touches.length === 1  && 
-		event.touches[0].target.nodeName !== "INPUT" &&
-		event.touches[0].target.nodeName !== "BUTTON") {
+	if (event.touches[0].target.id === "startButton") {
+		startHandler();
+	} else if (event.touches[0].target.id === "resetButton") {
+		resetHandler();
+	} else if (event.touches.length === 1) {
 		event.preventDefault();
 		orig = event.touches[0].screenX
 		console.log('touch start works!!!!', event.touches)

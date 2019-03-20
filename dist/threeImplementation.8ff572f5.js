@@ -6483,7 +6483,11 @@ function onTouchMove(event) {
 }
 
 function onTouchStart(event) {
-  if (event.touches.length === 1 && event.touches[0].target.nodeName !== "INPUT" && event.touches[0].target.nodeName !== "BUTTON") {
+  if (event.touches[0].target.id === "startButton") {
+    startHandler();
+  } else if (event.touches[0].target.id === "resetButton") {
+    resetHandler();
+  } else if (event.touches.length === 1) {
     event.preventDefault();
     orig = event.touches[0].screenX;
     console.log('touch start works!!!!', event.touches);
@@ -6708,7 +6712,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58209" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61398" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
