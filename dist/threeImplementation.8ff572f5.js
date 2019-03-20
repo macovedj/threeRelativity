@@ -6483,12 +6483,14 @@ function onTouchMove(event) {
 }
 
 function onTouchStart(event) {
-  if (event.touches.length === 1) {
+  if (event.touches.length === 1 && event.touches[0].target.nodeName !== "INPUT") {
     event.preventDefault();
     orig = event.touches[0].screenX;
     console.log('touch start works!!!!', event.touches);
     console.log('touch start works!!!!', orig);
   }
+
+  console.log('its the target', event.touches[0].target.nodeName);
 }
 
 function onTouchEnd(event) {
@@ -6706,7 +6708,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54722" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55930" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
