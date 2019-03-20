@@ -6473,18 +6473,22 @@ function onMouseWheel(event) {
 }
 
 function onTouchMove(event) {
-  event.preventDefault();
-  camera.position.x += (event.touches[0].screenX - orig) * .0005; // prevent scrolling beyond a min/max value
+  if (event.touches.length === 1) {
+    event.preventDefault();
+    camera.position.x += (event.touches[0].screenX - orig) * .0005; // prevent scrolling beyond a min/max value
 
-  camera.position.clampScalar(0, 1000);
-  console.log('touch move happened!', event.touches[0].screenX - orig);
+    camera.position.clampScalar(0, 1000);
+    console.log('touch move happened!', event.touches[0].screenX - orig);
+  }
 }
 
 function onTouchStart(event) {
-  event.preventDefault();
-  orig = event.touches[0].screenX;
-  console.log('touch start works!!!!', event.touches);
-  console.log('touch start works!!!!', orig);
+  if (event.touches.length === 1) {
+    event.preventDefault();
+    orig = event.touches[0].screenX;
+    console.log('touch start works!!!!', event.touches);
+    console.log('touch start works!!!!', orig);
+  }
 }
 
 function onTouchEnd(event) {
@@ -6702,7 +6706,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52254" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54722" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
