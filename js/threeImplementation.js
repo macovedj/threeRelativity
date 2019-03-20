@@ -75,7 +75,9 @@ function onMouseWheel(event) {
 }
 
 function onTouchMove(event) {
-	if (event.touches.length === 1 && event.touches[0].target.nodeName !== "INPUT") {
+	if (event.touches.length === 1 && 
+		event.touches[0].target.nodeName !== "INPUT" &&
+		event.touches[0].target.nodeName !== "BUTTON") {
 		event.preventDefault();
 		camera.position.x += (event.touches[0].screenX - orig) * .0005;
 
@@ -87,7 +89,9 @@ function onTouchMove(event) {
 }
 
 function onTouchStart(event) {
-	if (event.touches.length === 1  && event.touches[0].target.nodeName !== "INPUT") {
+	if (event.touches.length === 1  && 
+		event.touches[0].target.nodeName !== "INPUT" &&
+		event.touches[0].target.nodeName !== "BUTTON") {
 		event.preventDefault();
 		orig = event.touches[0].screenX
 		console.log('touch start works!!!!', event.touches)

@@ -6473,7 +6473,7 @@ function onMouseWheel(event) {
 }
 
 function onTouchMove(event) {
-  if (event.touches.length === 1) {
+  if (event.touches.length === 1 && event.touches[0].target.nodeName !== "INPUT" && event.touches[0].target.nodeName !== "BUTTON") {
     event.preventDefault();
     camera.position.x += (event.touches[0].screenX - orig) * .0005; // prevent scrolling beyond a min/max value
 
@@ -6483,7 +6483,7 @@ function onTouchMove(event) {
 }
 
 function onTouchStart(event) {
-  if (event.touches.length === 1 && event.touches[0].target.nodeName !== "INPUT") {
+  if (event.touches.length === 1 && event.touches[0].target.nodeName !== "INPUT" && event.touches[0].target.nodeName !== "BUTTON") {
     event.preventDefault();
     orig = event.touches[0].screenX;
     console.log('touch start works!!!!', event.touches);
@@ -6708,7 +6708,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55930" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58209" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
