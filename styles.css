@@ -52,6 +52,7 @@ table {
 
 .outer-container {
   display: flex;
+  margin-top: 3vw;
   align-items: center;
   justify-content: center;
   background-color: #333;
