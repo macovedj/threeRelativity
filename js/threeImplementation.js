@@ -64,6 +64,15 @@ function pauseInputHandler() {
 	pauseTime = pauseInput.value;
 }
 
+function sliderHandler(ev) {
+	travellerSpeed = ev.target.value;
+	labelValue.innerHTML = sliderNode.value;
+	gamma = computeGamma();
+	gammaLabel.innerHTML = gamma;
+	movingLightSecondLines.forEach(line => line.scale.set(1 / gamma, 1, 1))
+	movingSprites.forEach((sprite, i) => sprite.position.x = movingSprites[0].position.x + i * 1.5 / gamma);
+}
+
 // Handle Scroll Logic
 function onMouseWheel(event) {
 	event.preventDefault();
@@ -74,7 +83,7 @@ function onMouseWheel(event) {
 	camera.position.clampScalar(0, 1000);
 }
 
-function onkeydown(event) {
+function onKeyDown(event) {
 	if (event.keyCode === 37) {
 		camera.position.x -= 0.1;
 	} else if (event.keyCode === 39) {
@@ -104,6 +113,8 @@ function onTouchStart(event) {
 		startHandler();
 	} else if (event.touches[0].target.id === "resetButton") {
 		resetHandler();
+	} else if (event.touches[0].target.id === "speedSlider") {
+		sliderHandler(event);	
 	} else if (event.touches.length === 1) {
 		event.preventDefault();
 		orig = event.touches[0].screenX
@@ -177,7 +188,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 window.addEventListener('wheel', onMouseWheel, false);
-window.addEventListener('keydown', onkeydown, { passive: false});
+window.addEventListener('keydown', onKeyDown, { passive: false});
 window.addEventListener('touchstart', onTouchStart, { passive: false});
 window.addEventListener('touchmove', onTouchMove, { passive: false});
 window.addEventListener('touchend', onTouchEnd, { passive: false});
@@ -196,14 +207,7 @@ const renderTimers = (time, relativisticPhotonTime) => {
 	stationaryTimeNode.innerText = moment.duration(time).format('mm:ss:SS', { trim: false });
 }
 
-sliderNode.addEventListener("input", ev => {
-	travellerSpeed = ev.target.value;
-	labelValue.innerHTML = sliderNode.value;
-	gamma = computeGamma();
-	gammaLabel.innerHTML = gamma;
-	movingLightSecondLines.forEach(line => line.scale.set(1 / gamma, 1, 1))
-	movingSprites.forEach((sprite, i) => sprite.position.x = movingSprites[0].position.x + i * 1.5 / gamma);
-})
+sliderNode.addEventListener("input", sliderHandler);
 
 // Create each measurement line and photon
 var stationaryGeometry = new THREE.Geometry();

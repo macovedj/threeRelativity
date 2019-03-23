@@ -6462,6 +6462,19 @@ function startHandler() {
 
 function pauseInputHandler() {
   pauseTime = pauseInput.value;
+}
+
+function sliderHandler(ev) {
+  travellerSpeed = ev.target.value;
+  labelValue.innerHTML = sliderNode.value;
+  gamma = computeGamma();
+  gammaLabel.innerHTML = gamma;
+  movingLightSecondLines.forEach(function (line) {
+    return line.scale.set(1 / gamma, 1, 1);
+  });
+  movingSprites.forEach(function (sprite, i) {
+    return sprite.position.x = movingSprites[0].position.x + i * 1.5 / gamma;
+  });
 } // Handle Scroll Logic
 
 
@@ -6472,7 +6485,7 @@ function onMouseWheel(event) {
   camera.position.clampScalar(0, 1000);
 }
 
-function onkeydown(event) {
+function onKeyDown(event) {
   if (event.keyCode === 37) {
     camera.position.x -= 0.1;
   } else if (event.keyCode === 39) {
@@ -6498,6 +6511,8 @@ function onTouchStart(event) {
     startHandler();
   } else if (event.touches[0].target.id === "resetButton") {
     resetHandler();
+  } else if (event.touches[0].target.id === "speedSlider") {
+    sliderHandler(event);
   } else if (event.touches.length === 1) {
     event.preventDefault();
     orig = event.touches[0].screenX;
@@ -6571,7 +6586,7 @@ renderer.setClearColor(0x333333);
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 window.addEventListener('wheel', onMouseWheel, false);
-window.addEventListener('keydown', onkeydown, {
+window.addEventListener('keydown', onKeyDown, {
   passive: false
 });
 window.addEventListener('touchstart', onTouchStart, {
@@ -6604,18 +6619,7 @@ var renderTimers = function renderTimers(time, relativisticPhotonTime) {
   });
 };
 
-sliderNode.addEventListener("input", function (ev) {
-  travellerSpeed = ev.target.value;
-  labelValue.innerHTML = sliderNode.value;
-  gamma = computeGamma();
-  gammaLabel.innerHTML = gamma;
-  movingLightSecondLines.forEach(function (line) {
-    return line.scale.set(1 / gamma, 1, 1);
-  });
-  movingSprites.forEach(function (sprite, i) {
-    return sprite.position.x = movingSprites[0].position.x + i * 1.5 / gamma;
-  });
-}); // Create each measurement line and photon
+sliderNode.addEventListener("input", sliderHandler); // Create each measurement line and photon
 
 var stationaryGeometry = new THREE.Geometry();
 var movingGeometry = new THREE.Geometry();
@@ -6726,7 +6730,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55794" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57370" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
