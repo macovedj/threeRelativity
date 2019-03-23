@@ -6467,7 +6467,18 @@ function pauseInputHandler() {
 
 function onMouseWheel(event) {
   event.preventDefault();
-  camera.position.x += event.deltaX * 0.005; // prevent scrolling beyond a min/max value
+  camera.position.x -= event.deltaX * 0.005; // prevent scrolling beyond a min/max value
+
+  camera.position.clampScalar(0, 1000);
+}
+
+function onkeydown(event) {
+  if (event.keyCode === 37) {
+    camera.position.x -= 0.1;
+  } else if (event.keyCode === 39) {
+    camera.position.x += 0.1;
+  } // prevent scrolling beyond a min/max value
+
 
   camera.position.clampScalar(0, 1000);
 }
@@ -6560,6 +6571,9 @@ renderer.setClearColor(0x333333);
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 window.addEventListener('wheel', onMouseWheel, false);
+window.addEventListener('keydown', onkeydown, {
+  passive: false
+});
 window.addEventListener('touchstart', onTouchStart, {
   passive: false
 });
@@ -6712,7 +6726,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61398" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63966" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

@@ -67,8 +67,19 @@ function pauseInputHandler() {
 // Handle Scroll Logic
 function onMouseWheel(event) {
 	event.preventDefault();
-	camera.position.x += event.deltaX * 0.005;
+	camera.position.x -= event.deltaX * 0.005;
 
+	// prevent scrolling beyond a min/max value
+
+	camera.position.clampScalar(0, 1000);
+}
+
+function onkeydown(event) {
+	if (event.keyCode === 37) {
+		camera.position.x -= 0.1;
+	} else if (event.keyCode === 39) {
+		camera.position.x += 0.1;
+	}
 	// prevent scrolling beyond a min/max value
 
 	camera.position.clampScalar(0, 1000);
@@ -166,6 +177,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 window.addEventListener('wheel', onMouseWheel, false);
+window.addEventListener('keydown', onkeydown, { passive: false});
 window.addEventListener('touchstart', onTouchStart, { passive: false});
 window.addEventListener('touchmove', onTouchMove, { passive: false});
 window.addEventListener('touchend', onTouchEnd, { passive: false});
