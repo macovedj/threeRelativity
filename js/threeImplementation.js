@@ -1,6 +1,8 @@
 let moment = require('moment');
 let momentDurationFormatSetup = require("moment-duration-format");
 
+//various modes currently include classical or relativistic
+let mode = 'classical'
 let lastTime = performance.now();
 let relativisticPhotonTime = 0;
 let time = 0;
@@ -21,11 +23,16 @@ let startButtonNode = document.querySelector('#startButton');
 let labelValue = document.querySelector('#labelValue');
 let gammaLabel = document.querySelector('#gammaLabel');
 let pauseInput = document.querySelector('#pauseTime');
+let modeSelector = document.querySelector('#modeSelector');
 
 startButtonNode.addEventListener("click", startHandler);
 resetButtonNode.addEventListener("click", resetHandler);
 pauseInput.addEventListener("input", pauseInputHandler);
+modeSelector.addEventListener("change", modeHandler);
 
+function modeHandler(e) {
+	mode = e.target.value;
+}
 function resetHandler() {
 	sliderNode.value = 0;
 	gamma = 1;
@@ -67,8 +74,10 @@ function pauseInputHandler() {
 function sliderHandler(ev) {
 	travellerSpeed = ev.target.value;
 	labelValue.innerHTML = sliderNode.value;
-	gamma = computeGamma();
-	gammaLabel.innerHTML = gamma;
+	if (mode === 'relativistic') {
+		gamma = computeGamma();
+		gammaLabel.innerHTML = gamma;
+	}
 	movingLightSecondLines.forEach(line => line.scale.set(1 / gamma, 1, 1))
 	movingSprites.forEach((sprite, i) => sprite.position.x = movingSprites[0].position.x + i * 1.5 / gamma);
 }

@@ -6389,8 +6389,10 @@ var define;
 },{"moment":"node_modules/moment/moment.js"}],"js/threeImplementation.js":[function(require,module,exports) {
 var moment = require('moment');
 
-var momentDurationFormatSetup = require("moment-duration-format");
+var momentDurationFormatSetup = require("moment-duration-format"); //various modes currently include classical or relativistic
 
+
+var mode = 'classical';
 var lastTime = performance.now();
 var relativisticPhotonTime = 0;
 var time = 0;
@@ -6410,9 +6412,15 @@ var startButtonNode = document.querySelector('#startButton');
 var labelValue = document.querySelector('#labelValue');
 var gammaLabel = document.querySelector('#gammaLabel');
 var pauseInput = document.querySelector('#pauseTime');
+var modeSelector = document.querySelector('#modeSelector');
 startButtonNode.addEventListener("click", startHandler);
 resetButtonNode.addEventListener("click", resetHandler);
 pauseInput.addEventListener("input", pauseInputHandler);
+modeSelector.addEventListener("change", modeHandler);
+
+function modeHandler(e) {
+  mode = e.target.value;
+}
 
 function resetHandler() {
   sliderNode.value = 0;
@@ -6467,8 +6475,12 @@ function pauseInputHandler() {
 function sliderHandler(ev) {
   travellerSpeed = ev.target.value;
   labelValue.innerHTML = sliderNode.value;
-  gamma = computeGamma();
-  gammaLabel.innerHTML = gamma;
+
+  if (mode === 'relativistic') {
+    gamma = computeGamma();
+    gammaLabel.innerHTML = gamma;
+  }
+
   movingLightSecondLines.forEach(function (line) {
     return line.scale.set(1 / gamma, 1, 1);
   });
@@ -6703,7 +6715,7 @@ var GameLoop = function GameLoop() {
 };
 
 GameLoop();
-},{"moment":"node_modules/moment/moment.js","moment-duration-format":"node_modules/moment-duration-format/lib/moment-duration-format.js"}],"../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"moment":"node_modules/moment/moment.js","moment-duration-format":"node_modules/moment-duration-format/lib/moment-duration-format.js"}],"../../../../usr/local/lib/node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -6730,7 +6742,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57370" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64809" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
@@ -6872,5 +6884,5 @@ function hmrAccept(bundle, id) {
     return hmrAccept(global.parcelRequire, id);
   });
 }
-},{}]},{},["../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","js/threeImplementation.js"], null)
+},{}]},{},["../../../../usr/local/lib/node_modules/parcel/src/builtins/hmr-runtime.js","js/threeImplementation.js"], null)
 //# sourceMappingURL=/threeImplementation.8ff572f5.map

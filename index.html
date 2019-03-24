@@ -24,6 +24,10 @@
   <script src="js/three.js"></script>
   <script src="js/threeImplementation.js" defer></script>
   <div class="outer-container">
+    <select id="modeSelector" name="classical/relativistic">
+      <option value="classical" selected>Classical Mode</option>
+      <option value="relativistic">Relativistic Mode</option>
+    </select>
     <div class="clock-container">
       <input id="speedSlider" value="0" type="range" step="0.01" min="0" max=".99" />
       <div id="sliderLabel">Speed of traveller (fraction of speed of light): </div>
