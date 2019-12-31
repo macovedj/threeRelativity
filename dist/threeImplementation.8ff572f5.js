@@ -5,8 +5,6 @@
 //
 // anything defined in a previous bundle is accessed via the
 // orig method which is the require for previous bundles
-
-// eslint-disable-next-line no-global-assign
 parcelRequire = (function (modules, cache, entry, globalName) {
   // Save the require from previous bundle to this closure if any
   var previousRequire = typeof parcelRequire === 'function' && parcelRequire;
@@ -77,8 +75,16 @@ parcelRequire = (function (modules, cache, entry, globalName) {
     }, {}];
   };
 
+  var error;
   for (var i = 0; i < entry.length; i++) {
-    newRequire(entry[i]);
+    try {
+      newRequire(entry[i]);
+    } catch (e) {
+      // Save first error but execute all entries
+      if (!error) {
+        error = e;
+      }
+    }
   }
 
   if (entry.length) {
@@ -103,6 +109,13 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   // Override the current require with this new one
+  parcelRequire = newRequire;
+
+  if (error) {
+    // throw error from earlier, _after updating parcelRequire_
+    throw error;
+  }
+
   return newRequire;
 })({"node_modules/moment/moment.js":[function(require,module,exports) {
 var define;
@@ -4758,6 +4771,22 @@ var define;
     // function before passing them to `toLocaleString` for final formatting.
     var toLocaleStringRoundingWorks = false;
 
+    // `Intl.NumberFormat#format` is tested on plugin initialization.
+    // If the feature test passes, `intlNumberFormatRoundingWorks` will be set to
+    // `true` and the native function will be used to generate formatted output.
+    // If the feature test fails, either `Number#tolocaleString` (if
+    // `toLocaleStringWorks` is `true`), or the fallback format function internal
+    //  to this plugin will be used.
+    var intlNumberFormatWorks = false;
+
+    // `Intl.NumberFormat#format` rounds incorrectly for select numbers in Microsoft
+    // environments (Edge, IE11, Windows Phone) and possibly other environments.
+    // If the rounding test fails and `Intl.NumberFormat#format` will be used for
+    // formatting, the plugin will "pre-round" number values using the fallback number
+    // format function before passing them to `Intl.NumberFormat#format` for final
+    // formatting.
+    var intlNumberFormatRoundingWorks = false;
+
     // Token type names in order of descending magnitude.
     var types = "escape years months weeks days hours minutes seconds milliseconds general".split(" ");
 
@@ -4862,6 +4891,33 @@ var define;
         return digitsArray.reverse().join("");
     }
 
+    // cachedNumberFormat
+    // Returns an `Intl.NumberFormat` instance for the given locale and configuration.
+    // On first use of a particular configuration, the instance is cached for fast
+    // repeat access.
+    function cachedNumberFormat(locale, options) {
+        // Create a sorted, stringified version of `options`
+        // for use as part of the cache key
+        var optionsString = map(
+            keys(options).sort(),
+            function(key) {
+                return key + ':' + options[key];
+            }
+        ).join(',');
+
+        // Set our cache key
+        var cacheKey = locale + '+' + optionsString;
+
+        // If we don't have this configuration cached, configure and cache it
+        if (!cachedNumberFormat.cache[cacheKey]) {
+            cachedNumberFormat.cache[cacheKey] = Intl.NumberFormat(locale, options);
+        }
+
+        // Return the cached version of this configuration
+        return cachedNumberFormat.cache[cacheKey];
+    }
+    cachedNumberFormat.cache = {};
+
     // formatNumber
     // Formats any number greater than or equal to zero using these options:
     // - userLocale
@@ -4874,8 +4930,8 @@ var define;
     // - groupingSeparator
     // - decimalSeparator
     //
-    // `useToLocaleString` will use `toLocaleString` for formatting.
-    // `userLocale` option is passed through to `toLocaleString`.
+    // `useToLocaleString` will use `Intl.NumberFormat` or `toLocaleString` for formatting.
+    // `userLocale` option is passed through to the formatting function.
     // `fractionDigits` is passed through to `maximumFractionDigits` and `minimumFractionDigits`
     // Using `maximumSignificantDigits` will override `minimumIntegerDigits` and `fractionDigits`.
     function formatNumber(number, options, userLocale) {
@@ -4905,14 +4961,25 @@ var define;
                 localeStringOptions.maximumSignificantDigits = maximumSignificantDigits;
             }
 
-            if (!toLocaleStringRoundingWorks) {
-                var roundingOptions = extend({}, options);
-                roundingOptions.useGrouping = false;
-                roundingOptions.decimalSeparator = ".";
-                number = parseFloat(formatNumber(number, roundingOptions), 10);
-            }
+            if (intlNumberFormatWorks) {
+                if (!intlNumberFormatRoundingWorks) {
+                    var roundingOptions = extend({}, options);
+                    roundingOptions.useGrouping = false;
+                    roundingOptions.decimalSeparator = ".";
+                    number = parseFloat(formatNumber(number, roundingOptions), 10);
+                }
 
-            return number.toLocaleString(userLocale, localeStringOptions);
+                return cachedNumberFormat(userLocale, localeStringOptions).format(number);
+            } else {
+                if (!toLocaleStringRoundingWorks) {
+                    var roundingOptions = extend({}, options);
+                    roundingOptions.useGrouping = false;
+                    roundingOptions.decimalSeparator = ".";
+                    number = parseFloat(formatNumber(number, roundingOptions), 10);
+                }
+
+                return number.toLocaleString(userLocale, localeStringOptions);
+            }
         }
 
         var numberString;
@@ -5328,8 +5395,8 @@ var define;
         return false;
     }
 
-    function featureTestToLocaleStringRounding() {
-        return (3.55).toLocaleString("en", {
+    function featureTestFormatterRounding(formatter) {
+        return formatter(3.55, "en", {
             useGrouping: false,
             minimumIntegerDigits: 1,
             minimumFractionDigits: 1,
@@ -5337,37 +5404,33 @@ var define;
         }) === "3.6";
     }
 
-    function featureTestToLocaleString() {
+    function featureTestFormatter(formatter) {
         var passed = true;
 
-        // Test locale.
-        passed = passed && toLocaleStringSupportsLocales();
-        if (!passed) { return false; }
-
         // Test minimumIntegerDigits.
-        passed = passed && (1).toLocaleString("en", { minimumIntegerDigits: 1 }) === "1";
-        passed = passed && (1).toLocaleString("en", { minimumIntegerDigits: 2 }) === "01";
-        passed = passed && (1).toLocaleString("en", { minimumIntegerDigits: 3 }) === "001";
+        passed = passed && formatter(1, "en", { minimumIntegerDigits: 1 }) === "1";
+        passed = passed && formatter(1, "en", { minimumIntegerDigits: 2 }) === "01";
+        passed = passed && formatter(1, "en", { minimumIntegerDigits: 3 }) === "001";
         if (!passed) { return false; }
 
         // Test maximumFractionDigits and minimumFractionDigits.
-        passed = passed && (99.99).toLocaleString("en", { maximumFractionDigits: 0, minimumFractionDigits: 0 }) === "100";
-        passed = passed && (99.99).toLocaleString("en", { maximumFractionDigits: 1, minimumFractionDigits: 1 }) === "100.0";
-        passed = passed && (99.99).toLocaleString("en", { maximumFractionDigits: 2, minimumFractionDigits: 2 }) === "99.99";
-        passed = passed && (99.99).toLocaleString("en", { maximumFractionDigits: 3, minimumFractionDigits: 3 }) === "99.990";
+        passed = passed && formatter(99.99, "en", { maximumFractionDigits: 0, minimumFractionDigits: 0 }) === "100";
+        passed = passed && formatter(99.99, "en", { maximumFractionDigits: 1, minimumFractionDigits: 1 }) === "100.0";
+        passed = passed && formatter(99.99, "en", { maximumFractionDigits: 2, minimumFractionDigits: 2 }) === "99.99";
+        passed = passed && formatter(99.99, "en", { maximumFractionDigits: 3, minimumFractionDigits: 3 }) === "99.990";
         if (!passed) { return false; }
 
         // Test maximumSignificantDigits.
-        passed = passed && (99.99).toLocaleString("en", { maximumSignificantDigits: 1 }) === "100";
-        passed = passed && (99.99).toLocaleString("en", { maximumSignificantDigits: 2 }) === "100";
-        passed = passed && (99.99).toLocaleString("en", { maximumSignificantDigits: 3 }) === "100";
-        passed = passed && (99.99).toLocaleString("en", { maximumSignificantDigits: 4 }) === "99.99";
-        passed = passed && (99.99).toLocaleString("en", { maximumSignificantDigits: 5 }) === "99.99";
+        passed = passed && formatter(99.99, "en", { maximumSignificantDigits: 1 }) === "100";
+        passed = passed && formatter(99.99, "en", { maximumSignificantDigits: 2 }) === "100";
+        passed = passed && formatter(99.99, "en", { maximumSignificantDigits: 3 }) === "100";
+        passed = passed && formatter(99.99, "en", { maximumSignificantDigits: 4 }) === "99.99";
+        passed = passed && formatter(99.99, "en", { maximumSignificantDigits: 5 }) === "99.99";
         if (!passed) { return false; }
 
         // Test grouping.
-        passed = passed && (1000).toLocaleString("en", { useGrouping: true }) === "1,000";
-        passed = passed && (1000).toLocaleString("en", { useGrouping: false }) === "1000";
+        passed = passed && formatter(1000, "en", { useGrouping: true }) === "1,000";
+        passed = passed && formatter(1000, "en", { useGrouping: false }) === "1000";
         if (!passed) { return false; }
 
         return true;
@@ -5606,7 +5669,7 @@ var define;
         var decimalSeparator = settings.decimalSeparator;
         var grouping = settings.grouping;
 
-        useToLocaleString = useToLocaleString && toLocaleStringWorks;
+        useToLocaleString = useToLocaleString && (toLocaleStringWorks || intlNumberFormatWorks);
 
         // Trim options.
         var trim = settings.trim;
@@ -6375,8 +6438,22 @@ var define;
     }
 
     // Run feature tests for `Number#toLocaleString`.
-    toLocaleStringWorks = featureTestToLocaleString();
-    toLocaleStringRoundingWorks = toLocaleStringWorks && featureTestToLocaleStringRounding();
+    var toLocaleStringFormatter = function(number, locale, options) {
+        return number.toLocaleString(locale, options);
+    };
+
+    toLocaleStringWorks = toLocaleStringSupportsLocales() && featureTestFormatter(toLocaleStringFormatter);
+    toLocaleStringRoundingWorks = toLocaleStringWorks && featureTestFormatterRounding(toLocaleStringFormatter);
+
+    // Run feature tests for `Intl.NumberFormat#format`.
+    var intlNumberFormatFormatter = function(number, locale, options) {
+        if (typeof window !== 'undefined' && window && window.Intl && window.Intl.NumberFormat) {
+            return window.Intl.NumberFormat(locale, options).format(number);
+        }
+    };
+
+    intlNumberFormatWorks = featureTestFormatter(intlNumberFormatFormatter);
+    intlNumberFormatRoundingWorks = intlNumberFormatWorks && featureTestFormatterRounding(intlNumberFormatFormatter);
 
     // Initialize duration format on the global moment instance.
     init(moment);
@@ -6645,7 +6722,7 @@ var GameLoop = function GameLoop() {
 };
 
 GameLoop();
-},{"moment":"node_modules/moment/moment.js","moment-duration-format":"node_modules/moment-duration-format/lib/moment-duration-format.js"}],"../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"moment":"node_modules/moment/moment.js","moment-duration-format":"node_modules/moment-duration-format/lib/moment-duration-format.js"}],"../../.asdf/installs/nodejs/11.9.0/.npm/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -6667,26 +6744,47 @@ function Module(moduleName) {
 }
 
 module.bundle.Module = Module;
+var checkedAssets, assetsToAccept;
 var parent = module.bundle.parent;
 
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57061" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52040" + '/');
 
   ws.onmessage = function (event) {
+    checkedAssets = {};
+    assetsToAccept = [];
     var data = JSON.parse(event.data);
 
     if (data.type === 'update') {
-      console.clear();
-      data.assets.forEach(function (asset) {
-        hmrApply(global.parcelRequire, asset);
-      });
+      var handled = false;
       data.assets.forEach(function (asset) {
         if (!asset.isNew) {
-          hmrAccept(global.parcelRequire, asset.id);
+          var didAccept = hmrAcceptCheck(global.parcelRequire, asset.id);
+
+          if (didAccept) {
+            handled = true;
+          }
         }
+      }); // Enable HMR for CSS by default.
+
+      handled = handled || data.assets.every(function (asset) {
+        return asset.type === 'css' && asset.generated.js;
       });
+
+      if (handled) {
+        console.clear();
+        data.assets.forEach(function (asset) {
+          hmrApply(global.parcelRequire, asset);
+        });
+        assetsToAccept.forEach(function (v) {
+          hmrAcceptRun(v[0], v[1]);
+        });
+      } else if (location.reload) {
+        // `location` global exists in a web worker context but lacks `.reload()` function.
+        location.reload();
+      }
     }
 
     if (data.type === 'reload') {
@@ -6774,7 +6872,7 @@ function hmrApply(bundle, asset) {
   }
 }
 
-function hmrAccept(bundle, id) {
+function hmrAcceptCheck(bundle, id) {
   var modules = bundle.modules;
 
   if (!modules) {
@@ -6782,9 +6880,27 @@ function hmrAccept(bundle, id) {
   }
 
   if (!modules[id] && bundle.parent) {
-    return hmrAccept(bundle.parent, id);
+    return hmrAcceptCheck(bundle.parent, id);
   }
 
+  if (checkedAssets[id]) {
+    return;
+  }
+
+  checkedAssets[id] = true;
+  var cached = bundle.cache[id];
+  assetsToAccept.push([bundle, id]);
+
+  if (cached && cached.hot && cached.hot._acceptCallbacks.length) {
+    return true;
+  }
+
+  return getParents(global.parcelRequire, id).some(function (id) {
+    return hmrAcceptCheck(global.parcelRequire, id);
+  });
+}
+
+function hmrAcceptRun(bundle, id) {
   var cached = bundle.cache[id];
   bundle.hotData = {};
 
@@ -6809,10 +6925,6 @@ function hmrAccept(bundle, id) {
 
     return true;
   }
-
-  return getParents(global.parcelRequire, id).some(function (id) {
-    return hmrAccept(global.parcelRequire, id);
-  });
 }
-},{}]},{},["../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","js/threeImplementation.js"], null)
-//# sourceMappingURL=/threeImplementation.8ff572f5.map
+},{}]},{},["../../.asdf/installs/nodejs/11.9.0/.npm/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","js/threeImplementation.js"], null)
+//# sourceMappingURL=/threeImplementation.8ff572f5.js.map
