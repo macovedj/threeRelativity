@@ -224,6 +224,7 @@ var GameLoop = function () {
 	update();
 	render();
 	requestAnimationFrame(GameLoop);
+	console.log('yoyoyoyo');
 };
 
 GameLoop();
